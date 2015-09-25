@@ -23,3 +23,5 @@
 # documentation not in main branch
 html/
 
+# ROOT files
+*.root
