@@ -236,11 +236,7 @@ typedef unsigned long     ulg;  /*  predefined on some systems) & match zip  */
 #    define OF(a) ()
 #  endif /* ?__STDC__ */
 #endif
-extern int R__Inflate OF((uch**, long*, uch**, long*));
-extern int R__ZipMode;
 extern void R__error(const char *msg);
-extern void R__unzipLZMA(int*, uch*, int*, uch*, int*);
-extern void R__zipLZMA(int, int*, char*, int*, char*, int*);
 #define HDRSIZE 9
 
 
@@ -256,7 +252,7 @@ static int R__lzo_init()
   return (R__lzo_inited = (lzo_init() == LZO_E_OK));
 }
 
-static int R__lzo_decompress(uch* ibufptr, long ibufsz,
+int R__lzo_decompress(uch* ibufptr, long ibufsz,
     uch* obufptr, long* obufsz, uch method)
 {
   lzo_uint osz = *obufsz;
@@ -461,7 +457,7 @@ static struct R__lzo_tbl_t R__lzo_compr_tbl[9][11] = {
   },
 };
 
-static int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
+int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz)
 {
   lzo_uint osz = *obufsz, minosz; 
@@ -590,7 +586,7 @@ static int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
  * end liblzo related routines and definitions
  *
  **********************************************************************/ 
-static int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
+int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz)
 {
   lzo_uint osz = *obufsz, minosz; 
@@ -661,7 +657,7 @@ static int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
   return 0;
 }
 
-static int R__lz4_decompress(uch* ibufptr, long ibufsz,
+int R__lz4_decompress(uch* ibufptr, long ibufsz,
     uch* obufptr, long* obufsz, uch method)
 {
   lzo_uint osz = *obufsz;
