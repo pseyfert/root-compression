@@ -2,20 +2,17 @@
 /* Author: */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "lzo/lzoutil.h"
-#include "lzo/lzo1.h"
-#include "lzo/lzo1a.h"
-#include "lzo/lzo1b.h"
-#include "lzo/lzo1c.h"
-#include "lzo/lzo1f.h"
-#include "lzo/lzo1x.h"
-#include "lzo/lzo1y.h"
-#include "lzo/lzo1z.h"
-#include "lzo/lzo2a.h"
 
-#include "lz4/lz4.h"
+#include "zopfli/zopfli.h"
+/* I define the following headers:
+ * ZPZ: ZLIB decompression
+ * ZPG: GZIP decompression
+ * ZPD: deflate decompression
+ */
 
 #ifdef WIN32
 #define __STDC__
@@ -284,7 +281,8 @@ int R__unzip_header(int *srcsize, uch *src, int *tgtsize)
       !(src[0] == 'C' && src[1] == 'S' && src[2] == Z_DEFLATED) &&
       !(src[0] == 'X' && src[1] == 'Z' && src[2] == 0) &&
       !(src[0] == 'L' && src[1] == '4') &&
-      !(src[0] == 'L' && src[1] == 'Z')) {
+      !(src[0] == 'L' && src[1] == 'Z') &&
+      !(src[0] == 'Z' && src[1] == 'P')) {
     fprintf(stderr, "Error R__unzip_header: error in header\n");
     return 1;
   }
@@ -314,7 +312,8 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
       !(src[0] == 'C' && src[1] == 'S' && src[2] == Z_DEFLATED) &&
       !(src[0] == 'X' && src[1] == 'Z' && src[2] == 0) &&
       !(src[0] == 'L' && src[1] == '4') &&
-      !(src[0] == 'L' && src[1] == 'Z')) {
+      !(src[0] == 'L' && src[1] == 'Z') &&
+      !(src[0] == 'Z' && src[1] == 'P')) {
     fprintf(stderr,"R__unzip: error in header\n");
     return;
   }
@@ -338,8 +337,9 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
   /*   D E C O M P R E S S   D A T A  */
 
   if (src[0] == 'L' && src[1] == 'Z') {
+    fprintf(stdout,"LZO decompression");
     if (R__lzo_decompress(
-	  ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
+          ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
       fprintf(stderr, "R__unzip: failure to decompress with liblzo\n");
       return;
     }
@@ -347,8 +347,9 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
     return;
   }
   if (src[0] == 'L' && src[1] == '4') {
+    fprintf(stdout,"LZ4 decompression");
     if (R__lz4_decompress(
-	  ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
+          ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
       fprintf(stderr, "R__unzip: failure to decompress with liblz4\n");
       return;
     }
@@ -357,14 +358,22 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
   }
 
   if (src[0] == 'X' && src[1] == 'Z') {
+    fprintf(stdout,"LZMA decompression");
     R__unzipLZMA(srcsize, src, tgtsize, tgt, irep);
     return;
   }
 
+  if ((src[0] == 'Z' && src[1] == 'P' && src[2] == 'D') ||
+      (src[0] == 'Z' && src[1] == 'G' && src[2] == 'G')) {
+    fprintf(stderr,"Zopfli decompression for deflate or gzip not implemented\n");
+    return;
+  }
   /* New zlib format */
-  if (src[0] == 'Z' && src[1] == 'L') {
+  if ((src[0] == 'Z' && src[1] == 'L') ||
+      (src[0] == 'Z' && src[1] == 'P' && src[2] == 'Z')) {
     z_stream stream; /* decompression stream */
     int err = 0;
+    fprintf(stdout,"ZLIB decompression");
 
     stream.next_in   = (Bytef*)(&src[HDRSIZE]);
     stream.avail_in  = (uInt)(*srcsize);
@@ -448,89 +457,99 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
     compressionAlgorithm = R__ZipMode;
 
   switch (compressionAlgorithm) {
+    case 6: /* zopfli */
+      {
+        size_t dstsz = 0;
+        ZopfliOptions* zpfopts; /* TODO */
+        ZopfliFormat zpftype;   /* TODO */
+        uch* tgtu = (uch*) tgt;
+        ZopfliCompress( zpfopts, zpftype, (uch*) src, (size_t)*srcsize, &tgtu, &dstsz);
+        *tgtsize = dstsz;
+      }
+      break;
     case 4:
       {
-	lzo_uint dstsz = *tgtsize;
-	if (R__lzo_compress(
-	      cxlevel, (uch*) src, (lzo_uint) *srcsize, (uch*) tgt, &dstsz)) {
-	  *irep = 0;
-	} else {
-	  *irep = dstsz;
-	}
-	return;
+        lzo_uint dstsz = *tgtsize;
+        if (R__lzo_compress(
+              cxlevel, (uch*) src, (lzo_uint) *srcsize, (uch*) tgt, &dstsz)) {
+          *irep = 0;
+        } else {
+          *irep = dstsz;
+        }
+        return;
       }
       break;
     case 5:
       {
-	lzo_uint dstsz = *tgtsize;
-	if (R__lz4_compress(
-	      cxlevel, (uch*) src, (lzo_uint) *srcsize, (uch*) tgt, &dstsz)) {
-	  *irep = 0;
-	} else {
-	  *irep = dstsz;
-	}
-	return;
+        lzo_uint dstsz = *tgtsize;
+        if (R__lz4_compress(
+              cxlevel, (uch*) src, (lzo_uint) *srcsize, (uch*) tgt, &dstsz)) {
+          *irep = 0;
+        } else {
+          *irep = dstsz;
+        }
+        return;
       }
       break;
     case 1:
       {
-	unsigned in_size, out_size;
-	z_stream stream;
-	*irep = 0;
+        unsigned in_size, out_size;
+        z_stream stream;
+        *irep = 0;
 
-	if (*tgtsize <= HDRSIZE) {
-	  R__error("target buffer too small");
-	  return;
-	}
-	if (*srcsize > 0xffffff) {
-	  R__error("source buffer too big");
-	  return;
-	}
+        if (*tgtsize <= HDRSIZE) {
+          R__error("target buffer too small");
+          return;
+        }
+        if (*srcsize > 0xffffff) {
+          R__error("source buffer too big");
+          return;
+        }
 
 
-	stream.next_in   = (Bytef*)src;
-	stream.avail_in  = (uInt)(*srcsize);
+        stream.next_in   = (Bytef*)src;
+        stream.avail_in  = (uInt)(*srcsize);
 
-	stream.next_out  = (Bytef*)(&tgt[HDRSIZE]);
-	stream.avail_out = (uInt)(*tgtsize);
+        stream.next_out  = (Bytef*)(&tgt[HDRSIZE]);
+        stream.avail_out = (uInt)(*tgtsize);
 
-	stream.zalloc    = (alloc_func)0;
-	stream.zfree     = (free_func)0;
-	stream.opaque    = (voidpf)0;
+        stream.zalloc    = (alloc_func)0;
+        stream.zfree     = (free_func)0;
+        stream.opaque    = (voidpf)0;
 
-	err = deflateInit(&stream, cxlevel);
-	if (err != Z_OK) {
-	  printf("error %d in deflateInit (zlib)\n",err);
-	  return;
-	}
+        err = deflateInit(&stream, cxlevel);
+        if (err != Z_OK) {
+          printf("error %d in deflateInit (zlib)\n",err);
+          return;
+        }
 
-	err = deflate(&stream, Z_FINISH);
-	if (err != Z_STREAM_END) {
-	  deflateEnd(&stream);
-	  /* No need to print an error message. We simply abandon the compression
-	     the buffer cannot be compressed or compressed buffer would be larger than original buffer
-	     printf("error %d in deflate (zlib) is not = %d\n",err,Z_STREAM_END);
-	     */
-	  return;
-	}
+        err = deflate(&stream, Z_FINISH);
+        if (err != Z_STREAM_END) {
+          deflateEnd(&stream);
+          /* No need to print an error message. We simply abandon the compression
+             the buffer cannot be compressed or compressed buffer would be larger than original buffer
+             printf("error %d in deflate (zlib) is not = %d\n",err,Z_STREAM_END);
+             */
+          return;
+        }
 
-	err = deflateEnd(&stream);
+        err = deflateEnd(&stream);
 
-	tgt[0] = 'Z';               /* Signature ZLib */
-	tgt[1] = 'L';
-	tgt[2] = (char) method;
+        tgt[0] = 'Z';               /* Signature ZLib */
+        tgt[1] = 'L';
+        tgt[2] = (char) method;
 
-	in_size   = (unsigned) (*srcsize);
-	out_size  = stream.total_out;             /* compressed size */
-	tgt[3] = (char)(out_size & 0xff);
-	tgt[4] = (char)((out_size >> 8) & 0xff);
-	tgt[5] = (char)((out_size >> 16) & 0xff);
+        in_size   = (unsigned) (*srcsize);
+        out_size  = stream.total_out;             /* compressed size */
+        tgt[3] = (char)(out_size & 0xff);
+        tgt[4] = (char)((out_size >> 8) & 0xff);
+        tgt[5] = (char)((out_size >> 16) & 0xff);
 
-	tgt[6] = (char)(in_size & 0xff);         /* decompressed size */
-	tgt[7] = (char)((in_size >> 8) & 0xff);
-	tgt[8] = (char)((in_size >> 16) & 0xff);
+        tgt[6] = (char)(in_size & 0xff);         /* decompressed size */
+        tgt[7] = (char)((in_size >> 8) & 0xff);
+        tgt[8] = (char)((in_size >> 16) & 0xff);
 
-	*irep = stream.total_out + HDRSIZE;
+        *irep = stream.total_out + HDRSIZE;
       }
       break;
     case 2:
