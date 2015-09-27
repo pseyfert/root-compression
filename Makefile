@@ -7,6 +7,7 @@ all: libLzoRoot.so
 
 clean:
 	rm -f *~ libLzoRoot.so *.o lz4/*.o
+	$(MAKE) -C zopfli clean
 
 libLzoRoot.so: libZipRoot.o libLzoRoot.o lz4/lz4.o zopfli/libzopfli.so
 	$(CXX) -o $@ $(SOFLAGS) $^ $(LIBS)
