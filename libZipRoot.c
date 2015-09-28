@@ -462,10 +462,13 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
     case 6: /* zopfli */
       {
         size_t dstsz = 0;
-        ZopfliOptions* zpfopts; /* TODO */
-        ZopfliFormat zpftype;   /* TODO */
+        ZopfliOptions zpfopts;
+        ZopfliInitOptions(&zpfopts);
+        zpfopts.numiterations = cxlevel;
+        ZopfliFormat zpftype;
+        zpftype = ZOPFLI_FORMAT_ZLIB; /* also possible GZIP or DEFLATE */
         uch* tgtu = (uch*) tgt;
-        R__ZopfliCompress( zpfopts, zpftype, (uch*) src, (size_t)*srcsize, &tgtu, &dstsz);
+        R__ZopfliCompress( &zpfopts, zpftype, (uch*) src, (size_t)*srcsize, &tgtu, &dstsz);
         *tgtsize = dstsz;
       }
       break;
