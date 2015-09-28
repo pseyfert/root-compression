@@ -40,9 +40,25 @@ extern void R__error(const char *msg);
 #define HDRSIZE 9
 
 void R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
-        uch* src, size_t *srcsize, uch** target, size_t* dstsz)
+        uch* src, size_t srcsize, uch** target, size_t* dstsz)
 {
+  uch* compression_target;
+  size_t* compression_size;
   /* TODO some header stuff */
-  return ZopfliCompress(zpfopts, zpftype, src, srcsize, target, dstsz);
+  (*target)[0] = 'Z';
+  (*target)[1] = 'P';
+  if (ZOPFLI_FORMAT_ZLIB == zpftype) (*target)[2] = 'Z';
+  if (ZOPFLI_FORMAT_GZIP == zpftype) (*target)[2] = 'G';
+  if (ZOPFLI_FORMAT_DEFLATE == zpftype) (*target)[2] = 'D';
+  compression_target = (*target)+HDRSIZE;
+  ZopfliCompress(zpfopts, zpftype, src, srcsize, &compression_target, compression_size);
+  *dstsz = *compression_size + HDRSIZE;
+  (*target)[3] = (char)(((*compression_size) >> 0) & 0xff);
+  (*target)[4] = (char)(((*compression_size) >> 8) * 0xff);
+  (*target)[5] = (char)(((*compression_size) >>16) * 0xff);
+  (*target)[6] = (char)(((srcsize) >> 0) & 0xff);
+  (*target)[7] = (char)(((srcsize) >> 8) * 0xff);
+  (*target)[8] = (char)(((srcsize) >>16) * 0xff);
+  
 }
 
