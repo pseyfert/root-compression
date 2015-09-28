@@ -244,7 +244,7 @@ extern void R__error(const char *msg);
  *
  * begin liblzo related routines and definitions
  *
- **********************************************************************/ 
+ **********************************************************************/
 static int R__lzo_init()
 {
   static volatile int R__lzo_inited = 0;
@@ -275,52 +275,52 @@ int R__lzo_decompress(uch* ibufptr, long ibufsz,
     case 0: /* just store the uncompressed data */
       if (*obufsz != ibufsz - 4) return -1;
       if (ibufptr != obufptr)
-	lzo_memmove(obufptr, ibufptr, ibufsz - 4);
+        lzo_memmove(obufptr, ibufptr, ibufsz - 4);
       break;
     case 1: /* LZO1 */
       if (LZO_E_OK != lzo1_decompress(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 2: /* LZO1A */
       if (LZO_E_OK != lzo1a_decompress(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 3: /* LZO1B */
       if (LZO_E_OK != lzo1b_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 4: /* LZO1C */
       if (LZO_E_OK != lzo1c_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))  
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 5: /* LZO1F */
       if (LZO_E_OK != lzo1f_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 6: /* LZO1X */
       if (LZO_E_OK != lzo1x_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 7: /* LZO1Y */
       if (LZO_E_OK != lzo1y_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 8: /* LZO1Z */
       if (LZO_E_OK != lzo1z_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     case 9: /* LZO2A */
       if (LZO_E_OK != lzo2a_decompress_safe(ibufptr, ibufsz - 4,
-	    obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
-	return -1;
+            obufptr, &osz, NULL) || ((unsigned long) *obufsz != osz))
+        return -1;
       break;
     default:
       /* unknown method */
@@ -331,10 +331,10 @@ int R__lzo_decompress(uch* ibufptr, long ibufsz,
 
 /* definition of struct to map compression level to algorithms and settings */
 struct R__lzo_tbl_t {
-  int method;			/* method code to be written to file */
-  lzo_compress_t compress;	/* ptr to compression routine */
-  unsigned long wkspsz;	/* size of required workspace */
-  lzo_optimize_t optimize;	/* ptr to optimize routine */
+  int method;                        /* method code to be written to file */
+  lzo_compress_t compress;        /* ptr to compression routine */
+  unsigned long wkspsz;        /* size of required workspace */
+  lzo_optimize_t optimize;        /* ptr to optimize routine */
 };
 
 static struct R__lzo_tbl_t R__lzo_compr_tbl[9][11] = {
@@ -460,7 +460,7 @@ static struct R__lzo_tbl_t R__lzo_compr_tbl[9][11] = {
 int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz)
 {
-  lzo_uint osz = *obufsz, minosz; 
+  lzo_uint osz = *obufsz, minosz;
   unsigned long adler32 = 0;
   int level = cxlevel & 0xf;
   int alg = (cxlevel >> 4) & 0xf;
@@ -513,36 +513,36 @@ int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     } else {
       /* compression ok, check if we need to optimize */
       if (opt && algp->optimize) {
-	lzo_uint ucsz = ibufsz;
-	if (LZO_E_OK != algp->optimize(obuf, csz, ibufptr, &ucsz, NULL) ||
-	    ibufsz != ucsz) {
-	  /* something is wrong, try to store uncompressed below */
-	  alg = level = opt = 0;
-	  R__error("liblzo: unable to optimize, trying to store as is");
-	}
+        lzo_uint ucsz = ibufsz;
+        if (LZO_E_OK != algp->optimize(obuf, csz, ibufptr, &ucsz, NULL) ||
+            ibufsz != ucsz) {
+          /* something is wrong, try to store uncompressed below */
+          alg = level = opt = 0;
+          R__error("liblzo: unable to optimize, trying to store as is");
+        }
       }
 
       /* check compression ratio */
       if (csz < ibufsz && 0 != level) {
-	/* check if we need to copy from temp to final buffer */
-	if (obuf != obufptr + HDRSIZE) {
-	  /* check for sufficient space and copy */
-	  minosz = csz + HDRSIZE + 4;
-	  if (osz < minosz) {
-	    /* not enough space - try to store */
-	    alg = level = opt = 0;
-	  } else {
-	    lzo_memcpy(obufptr + HDRSIZE, obuf, csz);
-	    obufptr[2] = algp->method;
-	    *obufsz = csz + HDRSIZE + 4;
-	  }
-	} else {
-	  obufptr[2] = algp->method;
-	  *obufsz = csz + HDRSIZE + 4;
-	}
+        /* check if we need to copy from temp to final buffer */
+        if (obuf != obufptr + HDRSIZE) {
+          /* check for sufficient space and copy */
+          minosz = csz + HDRSIZE + 4;
+          if (osz < minosz) {
+            /* not enough space - try to store */
+            alg = level = opt = 0;
+          } else {
+            lzo_memcpy(obufptr + HDRSIZE, obuf, csz);
+            obufptr[2] = algp->method;
+            *obufsz = csz + HDRSIZE + 4;
+          }
+        } else {
+          obufptr[2] = algp->method;
+          *obufsz = csz + HDRSIZE + 4;
+        }
       } else {
-	/* uncompressible, try to store uncompressed below */
-	alg = level = opt = 0;
+        /* uncompressible, try to store uncompressed below */
+        alg = level = opt = 0;
       }
     }
     lzo_free(wksp);
@@ -562,16 +562,16 @@ int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
   };
   /* fill in sizes */
   osz = *obufsz - HDRSIZE;
-  obufptr[3] = (char)(osz & 0xff);	/* compressed size */
+  obufptr[3] = (char)(osz & 0xff);        /* compressed size */
   obufptr[4] = (char)((osz >> 8) & 0xff);
   obufptr[5] = (char)((osz >> 16) & 0xff);
 
-  obufptr[6] = (char)(ibufsz & 0xff);	/* decompressed size */
+  obufptr[6] = (char)(ibufsz & 0xff);        /* decompressed size */
   obufptr[7] = (char)((ibufsz >> 8) & 0xff);
   obufptr[8] = (char)((ibufsz >> 16) & 0xff);
   /* calculate checksum */
   adler32 = lzo_adler32(
-	  lzo_adler32(0, NULL,0), obufptr + HDRSIZE, osz - 4);
+          lzo_adler32(0, NULL,0), obufptr + HDRSIZE, osz - 4);
   obufptr += *obufsz - 4;
   obufptr[0] = (char) (adler32 & 0xff);
   obufptr[1] = (char) ((adler32 >> 8) & 0xff);
@@ -585,11 +585,11 @@ int R__lzo_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
  *
  * end liblzo related routines and definitions
  *
- **********************************************************************/ 
+ **********************************************************************/
 int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz)
 {
-  lzo_uint osz = *obufsz, minosz; 
+  lzo_uint osz = *obufsz, minosz;
   unsigned level = (cxlevel ? 1: 0);
   unsigned long adler32 = 0;
   *obufsz = 0;
@@ -613,11 +613,11 @@ int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
   /* compress with specified level and algorithm */
   if (level > 0) {
     uch* obuf = obufptr + HDRSIZE;
-    lzo_uint csz = LZ4_compress(ibufptr, obuf, ibufsz);
+    lzo_uint csz = LZ4_compress((const char*) ibufptr, (char*) obuf, ibufsz);
     /* check compression ratio */
     if (csz < ibufsz && 0 != level) {
-	obufptr[2] = 1;
-	*obufsz = csz + HDRSIZE + 4;
+        obufptr[2] = 1;
+        *obufsz = csz + HDRSIZE + 4;
     } else {
       /* uncompressible, try to store uncompressed below */
       level = 0;
@@ -638,16 +638,16 @@ int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
   }
   /* fill in sizes */
   osz = *obufsz - HDRSIZE;
-  obufptr[3] = (char)(osz & 0xff);	/* compressed size */
+  obufptr[3] = (char)(osz & 0xff);        /* compressed size */
   obufptr[4] = (char)((osz >> 8) & 0xff);
   obufptr[5] = (char)((osz >> 16) & 0xff);
 
-  obufptr[6] = (char)(ibufsz & 0xff);	/* decompressed size */
+  obufptr[6] = (char)(ibufsz & 0xff);        /* decompressed size */
   obufptr[7] = (char)((ibufsz >> 8) & 0xff);
   obufptr[8] = (char)((ibufsz >> 16) & 0xff);
   /* calculate checksum */
   adler32 = lzo_adler32(
-	  lzo_adler32(0, NULL,0), obufptr + HDRSIZE, osz - 4);
+          lzo_adler32(0, NULL,0), obufptr + HDRSIZE, osz - 4);
   obufptr += *obufsz - 4;
   obufptr[0] = (char) (adler32 & 0xff);
   obufptr[1] = (char) ((adler32 >> 8) & 0xff);
@@ -678,10 +678,11 @@ int R__lz4_decompress(uch* ibufptr, long ibufsz,
     case 0: /* just store the uncompressed data */
       if (*obufsz != ibufsz - 4) return -1;
       if (ibufptr != obufptr)
-	memmove(obufptr, ibufptr, ibufsz - 4);
+        memmove(obufptr, ibufptr, ibufsz - 4);
       break;
     case 1: /* LZ4 */
-      osz = LZ4_uncompress_unknownOutputSize(ibufptr, obufptr, ibufsz - 4, *obufsz);
+      osz = LZ4_uncompress_unknownOutputSize((const char*) ibufptr, (char*)obufptr, ibufsz - 4, *obufsz);
+      /* TODO: use target size from header */
       if (osz != *obufsz) return -1;
       break;
     default:

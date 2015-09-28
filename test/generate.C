@@ -24,6 +24,18 @@ int generate() {
         pointer->Close();
         delete pointer;
       }
+      for (int i = 1 ; i < 10 ; ++i) {
+        TFile* pointer = new TFile(Form("lzo%d.root",i),"recreate","",4*100+i);
+        pointer->WriteTObject(t->CloneTree(-1));
+        pointer->Close();
+        delete pointer;
+      }
+      for (int i = 1 ; i < 10 ; ++i) {
+        TFile* pointer = new TFile(Form("lz4%d.root",i),"recreate","",5*100+i);
+        pointer->WriteTObject(t->CloneTree(-1));
+        pointer->Close();
+        delete pointer;
+      }
       return 0;
       break;
     }

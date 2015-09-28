@@ -27,58 +27,60 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//**************************************
-// Tuning parameters
-//**************************************
-// COMPRESSIONLEVEL :
-// Increasing this value improves compression ratio
-// Lowering this value reduces memory usage
-// Reduced memory usage typically improves speed, due to cache effect (ex : L1 32KB for Intel, L1 64KB for AMD)
-// Memory usage formula : N->2^(N+2) Bytes (examples : 12 -> 16KB ; 17 -> 512KB)
+/*
+   Tuning parameters
+
+   COMPRESSIONLEVEL :
+   Increasing this value improves compression ratio
+   Lowering this value reduces memory usage
+   Reduced memory usage typically improves speed, due to cache effect (ex : L1 32KB for Intel, L1 64KB for AMD)
+   Memory usage formula : N->2^(N+2) Bytes (examples : 12 -> 16KB ; 17 -> 512KB) */
 #define COMPRESSIONLEVEL 12
 
-// NOTCOMPRESSIBLE_CONFIRMATION :
-// Decreasing this value will make the algorithm skip faster data segments considered "incompressible"
-// This may decrease compression ratio dramatically, but will be faster on incompressible data
-// Increasing this value will make the algorithm search more before declaring a segment "incompressible"
-// This could improve compression a bit, but will be slower on incompressible data
-// The default value (6) is recommended
+/*
+   NOTCOMPRESSIBLE_CONFIRMATION :
+   Decreasing this value will make the algorithm skip faster data segments considered "incompressible"
+   This may decrease compression ratio dramatically, but will be faster on incompressible data
+   Increasing this value will make the algorithm search more before declaring a segment "incompressible"
+   This could improve compression a bit, but will be slower on incompressible data
+   The default value (6) is recommended*/
 #define NOTCOMPRESSIBLE_CONFIRMATION 6
 
-// BIG_ENDIAN_NATIVE_BUT_INCOMPATIBLE :
-// This will provide a boost to performance for big endian cpu, but the resulting compressed stream will be incompatible with little-endian CPU.
-// You can set this option to 1 in situations where data will stay within closed environment
-// This option is useless on Little_Endian CPU (such as x86)
-//#define BIG_ENDIAN_NATIVE_BUT_INCOMPATIBLE 1
+/*
+   BIG_ENDIAN_NATIVE_BUT_INCOMPATIBLE :
+   This will provide a boost to performance for big endian cpu, but the resulting compressed stream will be incompatible with little-endian CPU.
+   You can set this option to 1 in situations where data will stay within closed environment
+   This option is useless on Little_Endian CPU (such as x86)
+  #define BIG_ENDIAN_NATIVE_BUT_INCOMPATIBLE 1*/
 
 
 
-//**************************************
-// CPU Feature Detection
-//**************************************
-// 32 or 64 bits ?
-#if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )   // Detects 64 bits mode
+/*
+   CPU Feature Detection
+
+   32 or 64 bits ? */
+#if (defined(__x86_64__) || defined(__x86_64) || defined(__amd64__) || defined(__amd64) || defined(__ppc64__) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) )   /* Detects 64 bits mode */
 #define LZ4_ARCH64 1
 #else
 #define LZ4_ARCH64 0
 #endif
 
-// Little Endian or Big Endian ? 
+/* Little Endian or Big Endian ? */
 #if (defined(__BIG_ENDIAN__) || defined(__BIG_ENDIAN) || defined(_BIG_ENDIAN) || defined(_ARCH_PPC) || defined(__PPC__) || defined(__PPC) || defined(PPC) || defined(__powerpc__) || defined(__powerpc) || defined(powerpc) || ((defined(__BYTE_ORDER__)&&(__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))) )
 #define LZ4_BIG_ENDIAN 1
 #else
-// Little Endian assumed. PDP Endian and other very rare endian format are unsupported.
+/* Little Endian assumed. PDP Endian and other very rare endian format are unsupported.*/
 #endif
 
-// Unaligned memory access ?
-// This feature is automatically enabled for "common" CPU, such as x86.
-// For others CPU, you may want to force this option manually to improve performance if your target CPU supports unaligned memory access
+/* Unaligned memory access ?
+   This feature is automatically enabled for "common" CPU, such as x86.
+   For others CPU, you may want to force this option manually to improve performance if your target CPU supports unaligned memory access */
 #if defined(__ARM_FEATURE_UNALIGNED)
 #define LZ4_FORCE_UNALIGNED_ACCESS 1
 #endif
 
-// Uncomment this parameter if your target system does not support hardware bit count
-//#define _FORCE_SW_BITCOUNT
+/* Uncomment this parameter if your target system does not support hardware bit count */
+/*#define _FORCE_SW_BITCOUNT*/
 
 
 

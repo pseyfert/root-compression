@@ -249,6 +249,8 @@ extern int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz);
 extern int R__lz4_decompress(uch* ibufptr, long ibufsz,
     uch* obufptr, long* obufsz, uch method);
+extern void R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
+    uch* src, size_t *srcsize, uch** target, size_t* dstsz);
 
 /***********************************************************************
  *                                                                     *
@@ -337,7 +339,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
   /*   D E C O M P R E S S   D A T A  */
 
   if (src[0] == 'L' && src[1] == 'Z') {
-    fprintf(stdout,"LZO decompression");
+    /*fprintf(stdout,"LZO decompression");*/ /*TODO: use some output level magic here*/
     if (R__lzo_decompress(
           ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
       fprintf(stderr, "R__unzip: failure to decompress with liblzo\n");
@@ -347,7 +349,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
     return;
   }
   if (src[0] == 'L' && src[1] == '4') {
-    fprintf(stdout,"LZ4 decompression");
+    /*fprintf(stdout,"LZ4 decompression");*/
     if (R__lz4_decompress(
           ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
       fprintf(stderr, "R__unzip: failure to decompress with liblz4\n");
@@ -358,7 +360,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
   }
 
   if (src[0] == 'X' && src[1] == 'Z') {
-    fprintf(stdout,"LZMA decompression");
+    /*fprintf(stdout,"LZMA decompression");*/
     R__unzipLZMA(srcsize, src, tgtsize, tgt, irep);
     return;
   }
@@ -373,7 +375,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
       (src[0] == 'Z' && src[1] == 'P' && src[2] == 'Z')) {
     z_stream stream; /* decompression stream */
     int err = 0;
-    fprintf(stdout,"ZLIB decompression");
+    /*fprintf(stdout,"ZLIB decompression");*/
 
     stream.next_in   = (Bytef*)(&src[HDRSIZE]);
     stream.avail_in  = (uInt)(*srcsize);
@@ -463,7 +465,7 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
         ZopfliOptions* zpfopts; /* TODO */
         ZopfliFormat zpftype;   /* TODO */
         uch* tgtu = (uch*) tgt;
-        ZopfliCompress( zpfopts, zpftype, (uch*) src, (size_t)*srcsize, &tgtu, &dstsz);
+        R__ZopfliCompress( zpfopts, zpftype, (uch*) src, (size_t)*srcsize, &tgtu, &dstsz);
         *tgtsize = dstsz;
       }
       break;
