@@ -249,8 +249,8 @@ extern int R__lz4_compress(int cxlevel, uch* ibufptr, lzo_uint ibufsz,
     uch* obufptr, lzo_uintp obufsz);
 extern int R__lz4_decompress(uch* ibufptr, long ibufsz,
     uch* obufptr, long* obufsz, uch method);
-extern void R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
-    uch* src, size_t srcsize, uch** target, size_t* dstsz);
+extern int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
+    uch* src, size_t srcsize, char* target, size_t* dstsz);
 
 /***********************************************************************
  *                                                                     *
@@ -461,14 +461,17 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
   switch (compressionAlgorithm) {
     case 6: /* zopfli */
       {
-        size_t dstsz = 0;
+        size_t dstsz = *tgtsize;
+        ZopfliFormat zpftype;
         ZopfliOptions zpfopts;
         ZopfliInitOptions(&zpfopts);
         zpfopts.numiterations = cxlevel;
-        ZopfliFormat zpftype;
         zpftype = ZOPFLI_FORMAT_ZLIB; /* also possible GZIP or DEFLATE */
-        uch* tgtu = (uch*) tgt;
-        R__ZopfliCompress( &zpfopts, zpftype, (uch*) src, *srcsize, &tgtu, &dstsz);
+        if (R__ZopfliCompress( &zpfopts, zpftype, (uch*) src, *srcsize, tgt, &dstsz)) {
+          *irep = 0;
+        } else {
+          *irep = dstsz;
+        }
         *tgtsize = dstsz;
       }
       break;
