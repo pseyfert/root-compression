@@ -44,7 +44,6 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
 {
   uch* compression_target = 0;
   size_t compression_size = 0;
-  size_t k;
   unsigned long adler32;
   lzo_uint obufs;
   lzo_uint osz;
@@ -67,7 +66,7 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   ZopfliCompress(zpfopts, zpftype, src, srcsize, &compression_target, &compression_size);
   if (*dstsz < compression_size + HDRSIZE + 4) {
     printf("this is going to fail\n");
-    printf("had: %u\tneeded: %u\n",(unsigned int)dstsz,(unsigned int)compression_size);
+    printf("had: %zu\tneeded: %zu\n",*dstsz,compression_size);
     R__error("will fail");
     return -1;
   }

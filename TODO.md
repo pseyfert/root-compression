@@ -4,6 +4,7 @@
   * check files for readability
   * automatically check generation script for errors
   * compare contents of different files
+  * run valgrind (fine in small file test for Zpf1)
 
 ## algorithms
 
@@ -30,3 +31,8 @@
 ## license
 
   * license missing
+
+## fix
+
+  * when compressing my large test file, at some point i receive error
+    messages from libZpfRoot.c:68
