@@ -338,7 +338,8 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
 
   /*   D E C O M P R E S S   D A T A  */
 
-  if (src[0] == 'L' && src[1] == 'Z') {
+  if ((src[0] == 'L' && src[1] == 'Z') ||
+      (src[0] == 'Z' && src[1] == 'P' && src[2] == 0)) { /*hack if Zpf did not compress*/
     /*fprintf(stdout,"LZO decompression");*/ /*TODO: use some output level magic here*/
     if (R__lzo_decompress(
           ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {

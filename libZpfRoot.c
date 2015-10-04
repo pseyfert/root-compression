@@ -64,17 +64,25 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   if (ZOPFLI_FORMAT_GZIP == zpftype) (target)[2] = 'G';
   if (ZOPFLI_FORMAT_DEFLATE == zpftype) (target)[2] = 'D';
   ZopfliCompress(zpfopts, zpftype, src, srcsize, &compression_target, &compression_size);
-  if (*dstsz < compression_size + HDRSIZE + 4) {
-    printf("this is going to fail\n");
-    printf("had: %zu\tneeded: %zu\n",*dstsz,compression_size);
-    R__error("will fail");
-    return -1;
+  if (compression_size > srcsize) {
+    free(compression_target);
+    if (*dstsz < srcsize + HDRSIZE + 4) {
+      R__error("will fail");
+      return -1;
+    }
+    memmove(target + HDRSIZE,src,srcsize);
+    target[2]=0; /* TODO: does this decompress? */
+  } else {
+    if (*dstsz < compression_size + HDRSIZE + 4) {
+      printf("this is going to fail\n");
+      printf("had: %zu\tneeded: %zu\n",*dstsz,compression_size);
+      R__error("will fail");
+      free(compression_target);
+      return -1;
+    }
+    memmove(target + HDRSIZE,compression_target,compression_size);
+    free(compression_target);
   }
-  /*for (k = 0 ; k < compression_size ; ++k) {
-    target[HDRSIZE+k] = (char)compression_target[k];
-  }*/
-  memmove(target + HDRSIZE,compression_target,compression_size);
-  free(compression_target);
 
   *dstsz = compression_size + HDRSIZE + 4;
   *obufsz = compression_size + HDRSIZE + 4;
