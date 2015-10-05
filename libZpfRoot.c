@@ -50,12 +50,6 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   lzo_uintp obufsz;
   uch* obufptr;
 
-  /*printf("obufptr length: %d\n",strlen(target));*/
-  /*printf("obufsz        : %d\n",*dstsz);*/
-  /*for (k = 0 ; k < *dstsz ; ++k) {
-    printf("%d\t%d\n",k,(target)[k]);
-  }*/
-
   obufs = *dstsz;
   obufsz = &obufs;
   (target)[0] = 'Z';
@@ -67,16 +61,15 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   if (compression_size > srcsize) {
     free(compression_target);
     if (*dstsz < srcsize + HDRSIZE + 4) {
-      R__error("will fail");
+      R__error("could not compress");
       return -1;
     }
     memmove(target + HDRSIZE,src,srcsize);
-    target[2]=0; /* TODO: does this decompress? */
+    target[2]=0;
   } else {
     if (*dstsz < compression_size + HDRSIZE + 4) {
-      printf("this is going to fail\n");
-      printf("had: %zu\tneeded: %zu\n",*dstsz,compression_size);
-      R__error("will fail");
+      /* this is actually caught */
+      R__error("could not leave uncompressed");
       free(compression_target);
       return -1;
     }
@@ -84,6 +77,7 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
     free(compression_target);
   }
 
+  /* does all this make sense? */
   *dstsz = compression_size + HDRSIZE + 4;
   *obufsz = compression_size + HDRSIZE + 4;
   osz = *obufsz - HDRSIZE;
@@ -102,21 +96,6 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   obufptr[1] = (char) ((adler32 >> 8) & 0xff);
   obufptr[2] = (char) ((adler32 >> 16) & 0xff);
   obufptr[3] = (char) ((adler32 >> 24) & 0xff);
-
-  
-  /*printf("AFTER COMPRESSION\n");*/
-  /*printf("ibufptr          : %s<<<\n",src);*/
-  /*printf("ibufsz           : %u<<<\n",(unsigned int)srcsize);*/
-  /*printf("strlen(ibufptr)  : %u<<<\n",(unsigned int)strlen((const char*)src));*/
-  /*for (k = 0 ; k < srcsize ; ++k) {
-    printf("%d\t%d\n",(unsigned int)k,src[k]);
-  }*/
-  /*printf("obufptr          : %s<<<\n",obufptr);*/
-  /*printf("obufsz           : %u<<<\n",(unsigned int)*obufsz);*/
-  /*printf("strlen(obufptr)  : %u<<<\n",(unsigned int)strlen((const char*)obufptr));*/
-  /*for (k = 0 ; k < *obufsz ; ++k) {
-    printf("%d\t%d\n",(unsigned int)k,obufptr[k]);
-  }*/
 
   return 0;
 

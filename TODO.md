@@ -36,3 +36,4 @@
 
   * when compressing my large test file, at some point i receive error
     messages from libZpfRoot.c:68
+    -> this is caught by ROOT
