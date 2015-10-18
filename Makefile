@@ -1,7 +1,8 @@
-CFLAGS = -Wall -pedantic -O2 -fPIC -g -pthread -Wextra -Izopfli/src
+CFLAGS = -Wall -pedantic -O2 -fPIC -ggdb -pthread -Wextra -Izopfli/src
 LIBS = -lz -llzo2 -L$(shell root-config --libdir) -lCore -lpthread -Lzopfli -lzopfli
 CXX=$(shell root-config --cc)
-SOFLAGS = -shared -g -Bdynamic
+SOFLAGS = -shared -ggdb -Bdynamic
+LDFLAGS=$(LIBS)
 
 all: libLzoRoot.so
 
@@ -18,4 +19,10 @@ zopfli/libzopfli.so: zopfli
 zopfli:
 	$(MAKE) -C zopfli libzopfli
 
-.PHONY: zopfli
+brotli/install/lib/python2.7/site-packages/brotli.so: brotli
+
+brotli:
+	$(MAKE) -C brotli/enc
+	$(MAKE) -C brotli/dec
+
+.PHONY: zopfli brotli
