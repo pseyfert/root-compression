@@ -9,6 +9,8 @@ all: libLzoRoot.so
 clean:
 	rm -f *~ libLzoRoot.so *.o lz4/*.o
 	$(MAKE) -C zopfli clean
+	$(MAKE) -C brotli/enc clean
+	$(MAKE) -C brotli/dec clean
 
 libLzoRoot.so: libZpfRoot.o libZipRoot.o libLzoRoot.o lz4/lz4.o zopfli/libzopfli.so
 	$(CXX) -o $@ $(SOFLAGS) $^ $(LIBS)
@@ -18,8 +20,6 @@ zopfli/libzopfli.so: zopfli
 
 zopfli:
 	$(MAKE) -C zopfli libzopfli
-
-brotli/install/lib/python2.7/site-packages/brotli.so: brotli
 
 brotli:
 	$(MAKE) -C brotli/enc
