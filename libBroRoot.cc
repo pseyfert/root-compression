@@ -43,6 +43,8 @@ extern "C" void R__error(const char *msg);
 extern "C" int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_t* dstsz);
 
 
+extern "C" int R__Bro_decompress(uch* ibufptr, long ibufsz, uch* obufptr, size_t* obufsz);
+
 int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_t* dstsz)
 {
   brotli::BrotliParams params;

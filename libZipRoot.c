@@ -359,7 +359,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
     return;
   }
   if (src[0] == 'B' && src[1] == 'R' && src[2] =='O') {
-    if (R__bro_decompress(
+    if (R__Bro_decompress(
           ibufptr, ibufcnt, obufptr, &obufcnt)) {
       fprintf(stderr, "R__unzip: failure to decompress with brotli\n");
       return;
