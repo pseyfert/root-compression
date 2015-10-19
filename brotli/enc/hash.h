@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "./dictionary_hash.h"
 #include "./fast_log.h"

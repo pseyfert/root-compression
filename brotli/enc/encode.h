@@ -17,8 +17,6 @@
 #ifndef BROTLI_ENC_ENCODE_H_
 #define BROTLI_ENC_ENCODE_H_
 
-#include <string>
-#include <vector>
 #include "./command.h"
 #include "./hash.h"
 #include "./ringbuffer.h"
@@ -51,7 +49,7 @@ struct BrotliParams {
     // Compression mode for UTF-8 format text input.
     MODE_TEXT = 1,
     // Compression mode used in WOFF 2.0.
-    MODE_FONT = 2,
+    MODE_FONT = 2
   };
   Mode mode;
 

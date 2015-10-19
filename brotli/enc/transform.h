@@ -44,7 +44,7 @@ enum WordTransformType {
   kOmitFirst6     = 17,
   kOmitFirst7     = 18,
   kOmitFirst8     = 19,
-  kOmitFirst9     = 20,
+  kOmitFirst9     = 20
 };
 
 struct Transform {
