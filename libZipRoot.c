@@ -251,6 +251,9 @@ extern int R__lz4_decompress(uch* ibufptr, long ibufsz,
     uch* obufptr, long* obufsz, uch method);
 extern int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
     uch* src, size_t srcsize, char* target, size_t* dstsz);
+extern int R__BrotliCompress(int cxlevel, uch* src, size_t srcsize,
+    uch* target, size_t* dstsz);
+
 
 /***********************************************************************
  *                                                                     *
@@ -460,6 +463,18 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
     compressionAlgorithm = R__ZipMode;
 
   switch (compressionAlgorithm) {
+    case 7: /* brotli */
+      {
+        size_t dstsz = *tgtsize;
+
+        if (R__BrotliCompress( cxlevel, (uch*) src, *srcsize, (uch*) tgt, &dstsz)) {
+          *irep = 0;
+        } else {
+          *irep = dstsz;
+        }
+        *tgtsize = dstsz;
+      }
+      break;
     case 6: /* zopfli */
       {
         size_t dstsz = *tgtsize;
