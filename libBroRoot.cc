@@ -71,6 +71,7 @@ int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_
     }
     memmove(target + HDRSIZE,src,srcsize);
     target[2]=0;
+    compression_size = srcsize;
   } else {
     if (*dstsz < compression_size + HDRSIZE + 4) {
       /* this is actually caught */
@@ -84,11 +85,11 @@ int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_
   *obufsz = compression_size + HDRSIZE + 4;
   osz = *obufsz - HDRSIZE;
   (target)[3] = (char)(((osz) >> 0) & 0xff);
-  (target)[4] = (char)(((osz) >> 8) * 0xff);
-  (target)[5] = (char)(((osz) >>16) * 0xff);
+  (target)[4] = (char)(((osz) >> 8) & 0xff);
+  (target)[5] = (char)(((osz) >>16) & 0xff);
   (target)[6] = (char)(((srcsize) >> 0) & 0xff);
-  (target)[7] = (char)(((srcsize) >> 8) * 0xff);
-  (target)[8] = (char)(((srcsize) >>16) * 0xff);
+  (target)[7] = (char)(((srcsize) >> 8) & 0xff);
+  (target)[8] = (char)(((srcsize) >>16) & 0xff);
   /* calculate checksum */
   adler32 = lzo_adler32(
       lzo_adler32(0, NULL,0), (target) + HDRSIZE, osz - 4);
@@ -99,18 +100,18 @@ int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_
   obufptr[2] = (char) ((adler32 >> 16) & 0xff);
   obufptr[3] = (char) ((adler32 >> 24) & 0xff);
 
+  /*printf("header write %d\t%d\n",srcsize,osz);*/
   return 0;
 
 }
 
-int R__Bro_decompress(uch* ibufptr, long ibufsz,
-        uch* obufptr, size_t* obufsz)
+int R__Bro_decompress(uch* ibufptr, long ibufsz, uch* obufptr, size_t* obufsz)
 {
   int status;
   if (ibufsz < 4) {
     return -1;
   }
-  {
+  if (false) {
     /* check adler32 checksum */
     uch *p = ibufptr + (ibufsz - 4);
     unsigned long adler = ((unsigned long) p[0]) | ((unsigned long) p[1] << 8) |
@@ -121,7 +122,9 @@ int R__Bro_decompress(uch* ibufptr, long ibufsz,
     }
   }
   status = BrotliDecompressBuffer(ibufsz-4,ibufptr,obufsz,obufptr);
-  if (0==status) return -1;
+  if (0==status) {
+    return -1;
+  }
   return 0;
 }
 

@@ -299,6 +299,7 @@ int R__unzip_header(int *srcsize, uch *src, int *tgtsize)
   *srcsize = HDRSIZE + ((long)src[3] | ((long)src[4] << 8) | ((long)src[5] << 16));
   *tgtsize = (long)src[6] | ((long)src[7] << 8) | ((long)src[8] << 16);
 
+  /*printf("header call %d\t%d\n",*srcsize,*tgtsize);*/
   return 0;
 }
 
@@ -359,11 +360,12 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
     return;
   }
   if (src[0] == 'B' && src[1] == 'R' && src[2] =='O') {
-    if (R__Bro_decompress(
-          ibufptr, ibufcnt, obufptr, &obufcnt)) {
+    size_t obufcnt_sizet = obufcnt;
+    if (R__Bro_decompress(ibufptr, ibufcnt, obufptr, &obufcnt_sizet)) {
       fprintf(stderr, "R__unzip: failure to decompress with brotli\n");
       return;
     }
+    obufcnt = obufcnt_sizet;
     if (isize == obufcnt) *irep = obufcnt;
     return;
   }

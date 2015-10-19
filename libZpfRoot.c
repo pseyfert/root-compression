@@ -66,6 +66,7 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
     }
     memmove(target + HDRSIZE,src,srcsize);
     target[2]=0;
+    compression_size = srcsize;
   } else {
     if (*dstsz < compression_size + HDRSIZE + 4) {
       /* this is actually caught */
@@ -82,11 +83,11 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   *obufsz = compression_size + HDRSIZE + 4;
   osz = *obufsz - HDRSIZE;
   (target)[3] = (char)(((osz) >> 0) & 0xff);
-  (target)[4] = (char)(((osz) >> 8) * 0xff);
-  (target)[5] = (char)(((osz) >>16) * 0xff);
+  (target)[4] = (char)(((osz) >> 8) & 0xff);
+  (target)[5] = (char)(((osz) >>16) & 0xff);
   (target)[6] = (char)(((srcsize) >> 0) & 0xff);
-  (target)[7] = (char)(((srcsize) >> 8) * 0xff);
-  (target)[8] = (char)(((srcsize) >>16) * 0xff);
+  (target)[7] = (char)(((srcsize) >> 8) & 0xff);
+  (target)[8] = (char)(((srcsize) >>16) & 0xff);
   /* calculate checksum */
   adler32 = lzo_adler32(
       lzo_adler32(0, NULL,0), (target) + HDRSIZE, osz - 4);

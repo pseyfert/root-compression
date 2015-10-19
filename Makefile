@@ -5,7 +5,7 @@ CXX=$(shell root-config --cc)
 SOFLAGS = -shared -ggdb -Bdynamic
 LDFLAGS=$(LIBS)
 
-all: libLzoRoot.so zopfli brotli
+all: zopfli brotli libLzoRoot.so
 
 clean:
 	rm -f *~ libLzoRoot.so *.o lz4/*.o
