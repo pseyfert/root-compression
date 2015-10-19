@@ -26,7 +26,9 @@ Override the root default compression stuff by injecting the library into `LD_PR
 
 ```
 cd path/to/root-compression
-export LD_PRELOAD=`pwd`/zopfli/libzopfli.so:`pwd`/libLzoRoot.so
+export LD_PRELOAD=$LD_PRELOAD:`pwd`/brotli/enc/libenc.so:`pwd`/brotli/dec/libdec.so:`pwd`/zopfli/libzopfli.so:`pwd`/libLzoRoot.so
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/brotli/enc:`pwd`/brotli/dec
+
 ```
 
 test your setup by putting a root file with a TTree in it (at top level) as
@@ -42,3 +44,7 @@ now you should have many many root files with your original TTree in various com
 I use zopfli from `git@github.com:pseyfert/zopfli.git` and the branch
 `myadditions`.  This is a fork from `https://github.com/google/zopfli.git` at
 commit `89cf773beef75d7f4d6d378debdf299378c3314e`.
+
+## results
+
+at the moment at https://twiki.cern.ch/twiki/bin/view/Main/PaulSeyfert#root_compression

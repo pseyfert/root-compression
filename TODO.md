@@ -1,6 +1,8 @@
 # TODO
 ## tests
 
+write scripts for automised testing
+
   * check files for readability
   * automatically check generation script for errors
   * compare contents of different files
@@ -9,8 +11,6 @@
 ## algorithms
 
   * update lz4
-  * import Brotli code (https://github.com/google/brotli/)
-    (apache license)
   * import lzham (https://github.com/richgel999/lzham_codec)
     (MIT license)
   * import miniz (https://code.google.com/p/miniz/)
@@ -18,11 +18,11 @@
 
 ## benchmarks
 
-  * compare file sizes
-  * measure writing speed
-  * measure reading speed
-  * measure writing RAM
-  * measure reading RAM
+  * compare file sizes (done)
+  * measure writing speed (running)
+  * measure reading speed (to be finished)
+  * measure writing RAM (postponed)
+  * measure reading RAM (postponed)
 
 ## large scale
 
@@ -34,6 +34,3 @@
 
 ## fix
 
-  * when compressing my large test file, at some point i receive error
-    messages from libZpfRoot.c:68
-    -> this is caught by ROOT
