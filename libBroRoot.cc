@@ -46,7 +46,7 @@ extern "C" int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* ta
 int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_t* dstsz)
 {
   brotli::BrotliParams params;
-  size_t compression_size = 0;
+  size_t compression_size = *dstsz;
   unsigned long adler32;
   lzo_uint obufs;
   lzo_uint osz;
@@ -60,8 +60,9 @@ int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_
   (target)[0] = 'B';
   (target)[1] = 'R';
   (target)[2] = 'O';
-  status = BrotliCompressBuffer(params,srcsize,src,&compression_size,target);
+  status = BrotliCompressBuffer(params,srcsize,src,&compression_size,target + HDRSIZE);
   if (status == 0) {
+    return -1;
     if (*dstsz < srcsize + HDRSIZE + 4) {
       R__error("could not leave uncompressed");
       return -1;
