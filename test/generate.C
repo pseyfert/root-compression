@@ -36,6 +36,12 @@ int generate() {
         pointer->Close();
         delete pointer;
       }
+      for (int i = 1 ; i < 10 ; ++i) {
+        TFile* pointer = new TFile(Form("zpf%d.root",i),"recreate","",6*100+i);
+        pointer->WriteTObject(t->CloneTree(-1));
+        pointer->Close();
+        delete pointer;
+      }
       return 0;
       break;
     }

@@ -3,3 +3,5 @@ parent.h: org.root
 
 parent.C: org.root
 	root -l -b -q generate.C
+
+read: read.o parent.o
