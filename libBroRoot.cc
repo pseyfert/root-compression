@@ -37,8 +37,11 @@ typedef unsigned long     ulg;  /*  predefined on some systems) & match zip  */
 #    define OF(a) ()
 #  endif /* ?__STDC__ */
 #endif
-extern void R__error(const char *msg);
+extern "C" void R__error(const char *msg);
 #define HDRSIZE 9
+
+extern "C" int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_t* dstsz);
+
 
 int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_t* dstsz)
 {
