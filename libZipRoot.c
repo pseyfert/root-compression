@@ -253,6 +253,9 @@ extern int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
     uch* src, size_t srcsize, char* target, size_t* dstsz);
 extern int R__BrotliCompress(int cxlevel, uch* src, size_t srcsize,
     uch* target, size_t* dstsz);
+extern int R__Bro_decompress(uch* ibufptr, long ibufsz,
+            uch* obufptr, size_t* obufsz);
+
 
 
 /***********************************************************************
@@ -287,6 +290,7 @@ int R__unzip_header(int *srcsize, uch *src, int *tgtsize)
       !(src[0] == 'X' && src[1] == 'Z' && src[2] == 0) &&
       !(src[0] == 'L' && src[1] == '4') &&
       !(src[0] == 'L' && src[1] == 'Z') &&
+      !(src[0] == 'B' && src[1] == 'R') &&
       !(src[0] == 'Z' && src[1] == 'P')) {
     fprintf(stderr, "Error R__unzip_header: error in header\n");
     return 1;
@@ -318,6 +322,7 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
       !(src[0] == 'X' && src[1] == 'Z' && src[2] == 0) &&
       !(src[0] == 'L' && src[1] == '4') &&
       !(src[0] == 'L' && src[1] == 'Z') &&
+      !(src[0] == 'B' && src[1] == 'R') &&
       !(src[0] == 'Z' && src[1] == 'P')) {
     fprintf(stderr,"R__unzip: error in header\n");
     return;
@@ -342,11 +347,21 @@ void R__unzip(int *srcsize, uch *src, int *tgtsize, uch *tgt, int *irep)
   /*   D E C O M P R E S S   D A T A  */
 
   if ((src[0] == 'L' && src[1] == 'Z') ||
-      (src[0] == 'Z' && src[1] == 'P' && src[2] == 0)) { /*hack if Zpf did not compress*/
+      (src[0] == 'Z' && src[1] == 'P' && src[2] == 0) || /*hack if Zpf did not compress*/
+      (src[0] == 'B' && src[1] == 'R' && src[2] == 0)) {
     /*fprintf(stdout,"LZO decompression");*/ /*TODO: use some output level magic here*/
     if (R__lzo_decompress(
           ibufptr, ibufcnt, obufptr, &obufcnt, src[2])) {
       fprintf(stderr, "R__unzip: failure to decompress with liblzo\n");
+      return;
+    }
+    if (isize == obufcnt) *irep = obufcnt;
+    return;
+  }
+  if (src[0] == 'B' && src[1] == 'R' && src[2] =='O') {
+    if (R__bro_decompress(
+          ibufptr, ibufcnt, obufptr, &obufcnt)) {
+      fprintf(stderr, "R__unzip: failure to decompress with brotli\n");
       return;
     }
     if (isize == obufcnt) *irep = obufcnt;

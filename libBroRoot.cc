@@ -8,6 +8,7 @@
 #include "lzo/lzoutil.h" /* TODO remove */
 
 #include "./brotli/enc/encode.h"
+#include "./brotli/dec/decode.h"
 #ifdef WIN32
 #define __STDC__
 #endif
@@ -94,5 +95,27 @@ int R__BrotliCompress(int cxlevel , uch* src, size_t srcsize, uch* target, size_
 
   return 0;
 
+}
+
+int R__Bro_decompress(uch* ibufptr, long ibufsz,
+        uch* obufptr, size_t* obufsz)
+{
+  int status;
+  if (ibufsz < 4) {
+    return -1;
+  }
+  {
+    /* check adler32 checksum */
+    uch *p = ibufptr + (ibufsz - 4);
+    unsigned long adler = ((unsigned long) p[0]) | ((unsigned long) p[1] << 8) |
+      ((unsigned long) p[2] << 16) | ((unsigned long) p[3] << 24);
+    if (adler != lzo_adler32(lzo_adler32(0, NULL, 0), ibufptr, ibufsz - 4)) {
+      /* corrupt compressed data */
+      return -1;
+    }
+  }
+  status = BrotliDecompressBuffer(ibufsz-4,ibufptr,obufsz,obufptr);
+  if (0==status) return -1;
+  return 0;
 }
 
