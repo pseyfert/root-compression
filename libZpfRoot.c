@@ -61,7 +61,7 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   if (compression_size > srcsize) {
     free(compression_target);
     if (*dstsz < srcsize + HDRSIZE + 4) {
-      R__error("could not compress");
+      R__error("could not leave uncompressed");
       return -1;
     }
     memmove(target + HDRSIZE,src,srcsize);
@@ -69,7 +69,7 @@ int R__ZopfliCompress(ZopfliOptions* zpfopts, ZopfliFormat zpftype,
   } else {
     if (*dstsz < compression_size + HDRSIZE + 4) {
       /* this is actually caught */
-      R__error("could not leave uncompressed");
+      R__error("could not compress");
       free(compression_target);
       return -1;
     }
