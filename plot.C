@@ -23,6 +23,11 @@ int getColour( const bool reset = false )
   return *(i++);
 }
 
+void clear() {
+  name.clear();
+  size.clear();
+  writetime.clear();
+}
 void graph(bool first) {
   float* x = &writetime[0];
   float* y = &size[0];
@@ -33,11 +38,13 @@ void graph(bool first) {
   points->SetFillColor(kWhite);
   points->SetLineColor(getColour());
   if (first) {
-    points->Draw("same");
+    points->SetLineColor(kWhite);
+    points->Draw("Psame");
   } else {
     points->Draw("L");
     points->SetMarkerStyle(kDot);
   }
+  clear();
   //latex();
 }
 void fillme(std::string a,float b,float c, float, float d) {
@@ -48,11 +55,6 @@ void fillme(std::string a,float b,float c, float, float d) {
   } else {
     writetime.push_back(c);
   }
-}
-void clear() {
-  name.clear();
-  size.clear();
-  writetime.clear();
 }
 float make_time(float m,float s,float mm) {
   return m*60+s+mm/1000;
@@ -65,6 +67,7 @@ void latex() {
   }
 }
 void plot() {
+  TCanvas* c = new TCanvas();
   TH1F* h = new TH1F("h","h",100,0,400);
   h->Draw();
   if (read_or_write) {
@@ -74,7 +77,7 @@ void plot() {
   }
   h->GetYaxis()->SetTitle("compressed size");
   h->GetYaxis()->SetRangeUser(0,100000000);
-  fillme("uncompressed  ",98301741,10.5546485  ,12.063259 , make_time(0,7,746));//  0:3,158  0:1,173
+  fillme("uncompressed  ",98301741,8.480000    , 8.505877 , make_time(0,7,746));//  0:3,158  0:1,173
   graph(true);
   clear();
   fillme("zlib1         ",50702386,12.361379   ,12.668328 , make_time(1,41,200));//   1:19,909   0:18,122
@@ -131,14 +134,16 @@ void plot() {
   fillme("zopflizlib8   ",48058418,26.4213415  ,26.818588 , make_time(1,44,047));//   1:25,665   0:16,170
   fillme("zopflizlib9   ",48052394,44.9004185  ,45.370068 , make_time(1,46,309));//   1:24,796   0:18,304
   graph(false);
-  //brotli1  55093705
-  //brotli2  55194416
-  //brotli3  55282577
-  //brotli4  52693765
-  //brotli5  45120783
-  //brotli6  45050878
-  //brotli7  45014172
-  //brotli8  44997822
-  //brotli9  44873267 
-
+  clear();
+  fillme("brotli1       ",55093705,17.750000   ,17.785291 , make_time(2,29,983));//   2, 5,114   0,19,275
+  fillme("brotli2       ",55194416,18.060000   ,18.100760 , make_time(2,19,527));//   2, 3,169   0,12,204
+  fillme("brotli3       ",55282577,19.980000   ,20.020245 , make_time(2,16,476));//   2, 3,274   0,11,136
+  fillme("brotli4       ",52693765,22.170000   ,22.223890 , make_time(2,17,248));//   2, 4,052   0,11,593
+  fillme("brotli5       ",45120783,36.890000   ,36.992227 , make_time(2,49,328));//   2,35,301   0,12,370
+  fillme("brotli6       ",45050878,36.720000   ,36.814792 , make_time(2,46,978));//   2,35,334   0,10,454
+  fillme("brotli7       ",45014172,50.680000   ,50.819970 , make_time(2,46,504));//   2,34.862   0,10,111
+  fillme("brotli8       ",44997822,53.190000   ,53.337658 , make_time(2,46,227));//   2,35,007   0, 9,710
+  //fillme("brotli9       ",44873267,230.760000  ,231.564378,make_time( ,  ,   ));//
+  graph(false);
+  c->BuildLegend();
 }
