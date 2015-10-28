@@ -50,3 +50,6 @@ commit `89cf773beef75d7f4d6d378debdf299378c3314e`.
 at the moment at https://twiki.cern.ch/twiki/bin/view/Main/PaulSeyfert#root_compression
 
 or in plot.C
+
+cf
+![plot](http://mathphys.fsk.uni-heidelberg.de/~pseyfert/compressionalgs_in_root.png)

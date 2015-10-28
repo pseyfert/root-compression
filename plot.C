@@ -37,12 +37,13 @@ void graph(bool first) {
   points->SetTitle(name[0].c_str());
   points->SetFillColor(kWhite);
   points->SetLineColor(getColour());
+  points->SetMarkerColor(points->GetLineColor());
   if (first) {
     points->SetLineColor(kWhite);
     points->Draw("Psame");
   } else {
-    points->Draw("L");
-    points->SetMarkerStyle(kDot);
+    points->Draw("PL");
+    points->SetMarkerStyle(kPlus);//kDot);
   }
   clear();
   //latex();
