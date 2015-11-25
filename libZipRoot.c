@@ -467,6 +467,14 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
      /* int  *srcsize, *tgtsize, *irep;   source and target sizes, replay */
      /* char *tgt, *src;                  source and target buffers */
 
+     /* compressionAlgorithm 0 = use global setting */
+     /*                      1 = zlib */
+     /*                      2 = lzma */
+     /*                      3 = old */
+     /*                      4 = lzo */
+     /*                      5 = lz4 */
+     /*                      6 = zopfli (zlib) */
+     /*                      7 = brotli */
 {
   int err;
   int method   = Z_DEFLATED;
@@ -476,8 +484,9 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
     return;
   }
 
-  if (0 == compressionAlgorithm)
+  if (compressionAlgorithm == 0) {
     compressionAlgorithm = R__ZipMode;
+  }
 
   switch (compressionAlgorithm) {
     case 7: /* brotli */
@@ -534,8 +543,9 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
       break;
     case 1:
       {
-        unsigned in_size, out_size;
         z_stream stream;
+        //Don't use the globals but want name similar to help see similarities in code
+        unsigned l_in_size, l_out_size;
         *irep = 0;
 
         if (*tgtsize <= HDRSIZE) {
@@ -558,6 +568,7 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
         stream.zfree     = (free_func)0;
         stream.opaque    = (voidpf)0;
 
+        if (cxlevel > 9) cxlevel = 9;
         err = deflateInit(&stream, cxlevel);
         if (err != Z_OK) {
           printf("error %d in deflateInit (zlib)\n",err);
@@ -580,15 +591,15 @@ void R__zipMultipleAlgorithm(int cxlevel, int *srcsize, char *src, int *tgtsize,
         tgt[1] = 'L';
         tgt[2] = (char) method;
 
-        in_size   = (unsigned) (*srcsize);
-        out_size  = stream.total_out;             /* compressed size */
-        tgt[3] = (char)(out_size & 0xff);
-        tgt[4] = (char)((out_size >> 8) & 0xff);
-        tgt[5] = (char)((out_size >> 16) & 0xff);
+        l_in_size   = (unsigned) (*srcsize);
+        l_out_size  = stream.total_out;             /* compressed size */
+        tgt[3] = (char)(l_out_size & 0xff);
+        tgt[4] = (char)((l_out_size >> 8) & 0xff);
+        tgt[5] = (char)((l_out_size >> 16) & 0xff);
 
-        tgt[6] = (char)(in_size & 0xff);         /* decompressed size */
-        tgt[7] = (char)((in_size >> 8) & 0xff);
-        tgt[8] = (char)((in_size >> 16) & 0xff);
+        tgt[6] = (char)(l_in_size & 0xff);         /* decompressed size */
+        tgt[7] = (char)((l_in_size >> 8) & 0xff);
+        tgt[8] = (char)((l_in_size >> 16) & 0xff);
 
         *irep = stream.total_out + HDRSIZE;
       }
