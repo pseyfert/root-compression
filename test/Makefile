@@ -14,10 +14,10 @@ LEVELS := $(shell seq 1 ${LAST_LEVEL})
 
 ALGS := 1 2 4 5 6 7
 
-CWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix callgrind-write.${ALG}.,${LEVELS}),.out))
-MWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix massif-write.${ALG}.,${LEVELS}),   .out))
-RWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix realtime-write.${ALG}.,${LEVELS}), .log))
-SIZEJOBS := $(foreach ALG,$(ALGS),$(addprefix $(addprefix size.${ALG}.,${LEVELS}),           .root))
+CWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .out, $(addprefix callgrind-write.${ALG}.,${LEVELS})))
+MWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .out, $(addprefix massif-write.${ALG}.,${LEVELS})))
+RWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .log, $(addprefix realtime-write.${ALG}.,${LEVELS})))
+SIZEJOBS := $(foreach ALG,$(ALGS),$(addsuffix .root,$(addprefix size.${ALG}.,${LEVELS})))
 
 all: callgrind-write massif-write realtime-write size
 callgrind-write: ${CWJOBS}
