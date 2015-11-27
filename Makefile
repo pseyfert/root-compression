@@ -5,8 +5,7 @@ CXX=$(shell root-config --cc)
 SOFLAGS = -shared -ggdb -Bdynamic
 LDFLAGS=$(LIBS)
 
-# hack, libLzoRoot requires the zopfli&brotli libraries to be built while neither should appear in $^ in the libLzoRoot.so rule
-all: zopfli brotli libLzoRoot.so
+all: libLzoRoot.so
 
 clean:
 	rm -f *~ libLzoRoot.so *.o lz4/*.o
@@ -14,8 +13,8 @@ clean:
 	$(MAKE) -C brotli/enc clean
 	$(MAKE) -C brotli/dec clean
 
-libLzoRoot.so: libZpfRoot.o libZipRoot.o libBroRoot.o libLzoRoot.o lz4/lz4.o
-	$(CXX) -o $@ $(SOFLAGS) $^ $(LIBS)
+libLzoRoot.so: libZpfRoot.o libZipRoot.o libBroRoot.o libLzoRoot.o lz4/lz4.o zopfli brotli
+	$(CXX) -o $@ $(SOFLAGS) $(filter %.o,$^) $(LIBS)
 libLzoRoot.o: libLzoRoot.c lz4/lz4.c
 
 # hack

@@ -23,16 +23,16 @@ massif-write: ${MWJOBS}
 
 define CWJOBTEMPLATE
 callgrind.$(1).$(2): todevnull
-  valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./todevnull $(1) $(2)
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./todevnull $(1) $(2)
 endef
 define MWJOBTEMPLATE
 massif.$(1).$(2): todevnull
 	valgrind --massif-out-file=$$@ --tool=massif --peak-inaccuracy=0.5 ./todevnull $(1) $(2)
 endef
-$(foreach ALG,$(ALGS),$(foreach LVL,${NUMBERS},$(eval $(call CWJOBTEMPLATE,$(ALG),$(LVL)))))
-$(foreach ALG,$(ALGS),$(foreach LVL,${NUMBERS},$(eval $(call MWJOBTEMPLATE,$(ALG),$(LVL)))))
+$(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call CWJOBTEMPLATE,$(ALG),$(LVL)))))
+$(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call MWJOBTEMPLATE,$(ALG),$(LVL)))))
 
 
 
-.PHONY: ${CWJOBS}
+.PHONY:
 
