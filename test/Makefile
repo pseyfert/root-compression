@@ -14,30 +14,37 @@ LEVELS := $(shell seq 1 ${LAST_LEVEL})
 
 ALGS := 1 2 4 5 6 7
 
-CWJOBS := $(foreach ALG,$(ALGS),$(addprefix callgrind-write.${ALG}.,${LEVELS}))
-MWJOBS := $(foreach ALG,$(ALGS),$(addprefix massif-write.${ALG}.,${LEVELS}))
-RWJOBS := $(foreach ALG,$(ALGS),$(addprefix realtime-write.${ALG}.,${LEVELS}))
+CWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix callgrind-write.${ALG}.,${LEVELS}),.out))
+MWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix massif-write.${ALG}.,${LEVELS}),   .out))
+RWJOBS   := $(foreach ALG,$(ALGS),$(addprefix $(addprefix realtime-write.${ALG}.,${LEVELS}), .log))
+SIZEJOBS := $(foreach ALG,$(ALGS),$(addprefix $(addprefix size.${ALG}.,${LEVELS}),           .root))
 
-all: callgrind-write massif-write realtime-write
+all: callgrind-write massif-write realtime-write size
 callgrind-write: ${CWJOBS}
 massif-write: ${MWJOBS}
 realtime-write: ${RWJOBS}
+size: ${SIZEJOBS}
 
 define RWJOBTEMPLATE
-realtime-write.$(1).$(2): writetime
-	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" ./writetime ./todevnull $(1) $(2) > $$@
+realtime-write.$(1).$(2).log: writetime
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" ./writetime $(1) $(2) > $$@
 endef
 define CWJOBTEMPLATE
-callgrind-write.$(1).$(2): todevnull
+callgrind-write.$(1).$(2).out: todevnull
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./todevnull $(1) $(2)
 endef
 define MWJOBTEMPLATE
-massif-write.$(1).$(2): todevnull
-	valgrind --massif-out-file=$$@ --tool=massif --peak-inaccuracy=0.5 ./todevnull $(1) $(2)
+massif-write.$(1).$(2).out: todevnull
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" valgrind --massif-out-file=$$@ --tool=massif --peak-inaccuracy=0.5 ./todevnull $(1) $(2)
+endef
+define SIZETEMPLATE
+size.$(1).$(2).root: convert
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec" ./convert $(1) $(2)
 endef
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call CWJOBTEMPLATE,$(ALG),$(LVL)))))
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call MWJOBTEMPLATE,$(ALG),$(LVL)))))
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call RWJOBTEMPLATE,$(ALG),$(LVL)))))
+$(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call SIZETEMPLATE,$(ALG),$(LVL)))))
 
 
 

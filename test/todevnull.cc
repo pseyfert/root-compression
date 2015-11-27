@@ -3,7 +3,7 @@
 #include "TTree.h"
 
 int todevnull(int alg, int level) {
-  unsigned int entries(1000u);
+  unsigned int entries(100u);
   TFile* orgfile = TFile::Open("org.root");
   TList* thelist = orgfile->GetListOfKeys();
   TObjLink* thelink = thelist->FirstLink();

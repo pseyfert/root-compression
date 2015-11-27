@@ -44,4 +44,6 @@ massif-write: all
 	$(MAKE) -C test massif-write
 realtime-write: all
 	$(MAKE) -C test realtime-write
+size: all
+	$(MAKE) -C test size
 
