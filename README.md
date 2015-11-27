@@ -45,6 +45,18 @@ I use zopfli from `git@github.com:pseyfert/zopfli.git` and the branch
 `myadditions`.  This is a fork from `https://github.com/google/zopfli.git` at
 commit `89cf773beef75d7f4d6d378debdf299378c3314e`.
 
+## running tests
+
+facing the transition to automised tests (in the test-dev branch) I'd like to
+point to http://stackoverflow.com/questions/1490949/how-to-write-loop-in-makefile
+according to which one can specify the test range
+```
+make -C test size -j 10 LAST_LEVEL=4 # to only test compression levels 1..4
+make -C test callgrind-write -j 20 ALGS="6 7" LEVELS="4 5" # test only zopfli and brotli, and only levels 4 and 5
+```
+Furthermore, one does not need to specify LD_PRELOAD and LD_LIBRARY_PATH by hand
+anymore to run tests.
+
 ## results
 
 at the moment at https://twiki.cern.ch/twiki/bin/view/Main/PaulSeyfert#root_compression
