@@ -2,8 +2,8 @@
  * The code which is copied over from ROOT is subject to [LGPL v2.1][lgpl2.1].
  * The LZ4 code, which is included in the repository, is subject to the BSD
    license.
- * LZO, which is *not* included in the repository is subject to [GPL
-   v2][glp2].[1]
+ * LZO, which is *not* included in the repository is subject to [GPL v2][glp2].
+   [1]
  * zopfli, which is forked for usage with this repository is licensed under the
    Apache license 2.0.
  * brotli, which is forked in this repository is licensed under the Apache
