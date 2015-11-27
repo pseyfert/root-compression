@@ -14,20 +14,32 @@ LEVELS := $(shell seq 1 ${LAST_LEVEL})
 
 ALGS := 1 2 4 5 6 7
 
+CRJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .out, $(addprefix callgrind-read.${ALG}.,${LEVELS})))
 CWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .out, $(addprefix callgrind-write.${ALG}.,${LEVELS})))
 MWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .out, $(addprefix massif-write.${ALG}.,${LEVELS})))
 RWJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .log, $(addprefix realtime-write.${ALG}.,${LEVELS})))
+RRJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .log, $(addprefix realtime-read.${ALG}.,${LEVELS})))
 SIZEJOBS := $(foreach ALG,$(ALGS),$(addsuffix .root,$(addprefix size.${ALG}.,${LEVELS})))
 
-all: callgrind-write massif-write realtime-write size
+all: callgrind-write massif-write realtime-write size callgrind-read realtime-read
 callgrind-write: ${CWJOBS}
+callgrind-read: ${CRJOBS}
 massif-write: ${MWJOBS}
 realtime-write: ${RWJOBS}
+realtime-read: ${RRJOBS}
 size: ${SIZEJOBS}
 
 define RWJOBTEMPLATE
 realtime-write.$(1).$(2).log: writetime
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec ./writetime $(1) $(2) > $$@
+endef
+define CRJOBTEMPLATE
+callgrind-read.$(1).$(2).out: read
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./read $(1) $(2)
+endef
+define RRJOBTEMPLATE
+realtime-read.$(1).$(2).log: readtime
+	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec ./readtime $(1) $(2) > $$@
 endef
 define CWJOBTEMPLATE
 callgrind-write.$(1).$(2).out: todevnull
@@ -42,8 +54,10 @@ size.$(1).$(2).root: convert
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec ./convert $(1) $(2)
 endef
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call CWJOBTEMPLATE,$(ALG),$(LVL)))))
+$(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call CRJOBTEMPLATE,$(ALG),$(LVL)))))
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call MWJOBTEMPLATE,$(ALG),$(LVL)))))
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call RWJOBTEMPLATE,$(ALG),$(LVL)))))
+$(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call RRJOBTEMPLATE,$(ALG),$(LVL)))))
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call SIZETEMPLATE,$(ALG),$(LVL)))))
 
 
