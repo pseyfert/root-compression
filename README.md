@@ -5,6 +5,13 @@ Beyond the educational aspect, the project is to add new compression algorithms
 to ROOT. It is based on previous work by Manuel Schiller, adding LZO and LZ4 to
 ROOT.
 
+# where to get the underlying algorithms
+
+LZO should ship with your OS. otherwise: http://www.oberhumer.com/opensource/lzo/#download
+LZ4 is included in the repo. originally: https://github.com/Cyan4973/lz4
+zopfli is forked (see below). originally:https://github.com/google/zopfli.git
+brotli is forkedly included. originally: https://github.com/google/brotli
+
 # how to build
 
 Get zopfli and put it `path/to/root-compression/zopfli`.
@@ -18,6 +25,8 @@ You should now have to shared libraries:
 ```
 path/to/root-compression/libLzoRoot.so
 path/to/root-compression/zopfli/libzopfli.so
+path/to/root-compression/brotli/enc/libenc.so
+path/to/root-compression/brotli/dec/libdec.so
 ```
 
 # how to run
@@ -36,6 +45,11 @@ test your setup by putting a root file with a TTree in it (at top level) as
 ```
 cd path/to/root-compression/test
 make
+```
+or
+```
+cd path/to/root-compression
+make test
 ```
 now you should have many many root files with your original TTree in various compressions.
 
