@@ -38,6 +38,8 @@ test: callgrind-write massif-write size callgrind-read massif-read realtime-writ
 .PHONY: zopfli brotli test callgrind-write massif-write size callgrind-read massif-read realtime-write
 
 # dependency = test only once the library exists
+callgrind-read: all
+	$(MAKE) -C test callgrind-read
 callgrind-write: all
 	$(MAKE) -C test callgrind-write
 massif-write: all

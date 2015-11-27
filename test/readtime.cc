@@ -1,5 +1,8 @@
 #include "TH1F.h"
 #include "parent.h"
+#include <stdio.h>
+#include "TStopwatch.h"
+
 
 class child :public parent {
   public:
@@ -27,10 +30,15 @@ class child :public parent {
 };
 
 int main(int argc,char** argv) {
+  TStopwatch watch;
   TFile* inf = new TFile(Form("size.%d.%d.root",atoi(argv[1]),atoi(argv[2])),"read");
   TTree* intree;
   inf->GetObject("B02DD",intree);
   child p(intree);
   p.Loop();
+  watch.Start();
+  p.Loop();
+  watch.Stop();
+  printf("wall clock time: %f\n",watch.RealTime());
   return 0;
 }
