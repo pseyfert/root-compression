@@ -94,8 +94,12 @@ def find_callwrite(alg,level):
          if ind < 0:
              raise ValueError("didn't find R__zipMultipleAlgorithm in "+filename)
          toread = ind+1
-         pointer = lines[toread].split(' ')[0]
-         for l in lines:
+         pointer = None
+         for word in lines[toread].split(' '):
+            if re.match("0x..*",word):
+               pointer = word
+         if pointer:
+           for l in lines:
              if re.match('calls.* '+pointer+'.*',l):
                 return int(lines[lines.index(l)+1].split(' ')[-1])
          raise ValueError('callcount not found')
