@@ -11,6 +11,8 @@ parent.C: org.root
 	root -l -b -q generate.C
 
 read: read.o parent.o
+
+read.o: parent.h
  
 # http://stackoverflow.com/questions/1490949/how-to-write-loop-in-makefile
 LAST_LEVEL := 9

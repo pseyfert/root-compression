@@ -7,41 +7,6 @@ int generate() {
       TTree* t;
       orgfile->GetObject(thelink->GetObject()->GetName(),t);
       t->MakeClass("parent");
-      TFile* uncompressed = new TFile("uncompressed.root","recreate","",ROOT::CompressionSettings(ROOT::kZLIB,0));
-      uncompressed->WriteTObject(t->CloneTree(-1));
-      uncompressed->Close();
-      delete uncompressed;
-      uncompressed=NULL;
-      for (int i = 1 ; i < 10 ; ++i) {
-        TFile* pointer = new TFile(Form("zlib%d.root",i),"recreate","",ROOT::CompressionSettings(ROOT::kZLIB,i));
-        pointer->WriteTObject(t->CloneTree(-1));
-        pointer->Close();
-        delete pointer;
-      }
-      for (int i = 1 ; i < 10 ; ++i) {
-        TFile* pointer = new TFile(Form("lzma%d.root",i),"recreate","",ROOT::CompressionSettings(ROOT::kLZMA,i));
-        pointer->WriteTObject(t->CloneTree(-1));
-        pointer->Close();
-        delete pointer;
-      }
-      for (int i = 1 ; i < 10 ; ++i) {
-        TFile* pointer = new TFile(Form("lzo%d.root",i),"recreate","",4*100+i);
-        pointer->WriteTObject(t->CloneTree(-1));
-        pointer->Close();
-        delete pointer;
-      }
-      for (int i = 1 ; i < 10 ; ++i) {
-        TFile* pointer = new TFile(Form("lz4%d.root",i),"recreate","",5*100+i);
-        pointer->WriteTObject(t->CloneTree(-1));
-        pointer->Close();
-        delete pointer;
-      }
-      for (int i = 1 ; i < 10 ; ++i) {
-        TFile* pointer = new TFile(Form("zpf%d.root",i),"recreate","",6*100+i);
-        pointer->WriteTObject(t->CloneTree(-1));
-        pointer->Close();
-        delete pointer;
-      }
       return 0;
       break;
     }
