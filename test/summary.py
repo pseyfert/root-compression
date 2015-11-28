@@ -1,13 +1,13 @@
 from ROOT import *
 
-maxlevel = 4
+maxlevel = 10
 
 alglookup = { 1: "ZLIB",
-              #2: "LZMA",
-              #4: "LZO",
-              #5: "LZ4",
-              #6: "Zopfli",
-              #7: "Brotli" 
+              2: "LZMA",
+              4: "LZO",
+              5: "LZ4",
+              6: "Zopfli",
+              7: "Brotli" 
             }
 
 import os, re
