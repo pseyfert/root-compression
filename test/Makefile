@@ -52,7 +52,7 @@ callgrind-write.$(1).$(2).out: todevnull
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./todevnull $(1) $(2)
 endef
 define MRJOBTEMPLATE
-massif-read.$(1).$(2).out: todevnull size.$(1).$(2).root
+massif-read.$(1).$(2).out: read size.$(1).$(2).root
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec valgrind --massif-out-file=$$@ --tool=massif --peak-inaccuracy=0.5 ./read $(1) $(2)
 endef
 define MWJOBTEMPLATE
