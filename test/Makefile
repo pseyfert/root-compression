@@ -69,3 +69,5 @@ $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call SIZETEMPLATE,$(ALG),
 
 clean:
 	rm -f convert todevnull readtime writetime read
+
+.DELETE_ON_ERROR:
