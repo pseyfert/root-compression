@@ -33,17 +33,21 @@ brotli:
 	$(MAKE) -C brotli/enc
 	$(MAKE) -C brotli/dec
 
-test: callgrind-write massif-write size callgrind-read massif-read realtime-write
+test: callgrind-write massif-write size callgrind-read massif-read realtime-write realtime-read
 
-.PHONY: zopfli brotli test callgrind-write massif-write size callgrind-read massif-read realtime-write
+.PHONY: zopfli brotli test callgrind-write massif-write size callgrind-read massif-read realtime-write realtime-read
 
 # dependency = test only once the library exists
 callgrind-read: all
 	$(MAKE) -C test callgrind-read
 callgrind-write: all
 	$(MAKE) -C test callgrind-write
+massif-read: all
+	$(MAKE) -C test massif-read
 massif-write: all
 	$(MAKE) -C test massif-write
+realtime-read: all
+	$(MAKE) -C test realtime-read
 realtime-write: all
 	$(MAKE) -C test realtime-write
 size: all
