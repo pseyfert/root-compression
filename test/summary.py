@@ -63,6 +63,33 @@ def find_memread(alg,level):
    raise ValueError('file not found: ' + filename)
 find_memread.__name__ = "memory reading (peak)"
 
+def find_realwrite(alg,level):
+   filename = "realtime-write."+str(alg)+'.'+str(level)+".log"
+   if os.path.isfile(filename):
+      f = open(filename)
+      lines = f.readlines()
+      try:
+        res = float(lines[0].split(' ')[-1])
+        return res
+      except ValueError:
+        raise ValueError('could not parse content of ' + filename)
+   raise ValueError('file not found: ' + filename)
+find_realwrite.__name__ = "realtime writing"
+
+
+def find_realread(alg,level):
+   filename = "realtime-read."+str(alg)+'.'+str(level)+".log"
+   if os.path.isfile(filename):
+      f = open(filename)
+      lines = f.readlines()
+      try:
+        res = float(lines[0].split(' ')[-1])
+        return res
+      except ValueError:
+        raise ValueError('could not parse content of ' + filename)
+   raise ValueError('file not found: ' + filename)
+find_realread.__name__ = "realtime reading"
+
 
 def find_memwrite(alg,level):
    filename = 'massif-write.'+str(alg)+'.'+str(level)+'.out'
@@ -109,10 +136,11 @@ def find_callwrite(alg,level):
    raise ValueError('file not found: ' + filename)
 find_callwrite.__name__ = "cycles writing (function)"
 
+#TODO find_callread
 
 import numpy
 
-stats = [find_memwrite,find_size,find_callwrite]
+stats = [find_memwrite,find_size,find_callwrite,find_realread,find_realwrite]
 
 graphmap = {}
 for alg in alglookup:
