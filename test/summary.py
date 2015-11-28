@@ -151,6 +151,8 @@ for xaxis in range(len(stats)-1):
       ymax = array([ graphmap[alg][yaxis].max() for alg in alglookup ]).max()
       h = TH1F("h","h",1,0,xmax)
       h.GetYaxis().SetRangeUser(0,ymax*1.05)
+      h.GetXaxis().SetTitle(stats[xaxis].__name__)
+      h.GetYaxis().SetTitle(stats[yaxis].__name__)
       h.Draw()
       for alg in alglookup:
           x = graphmap[alg][xaxis]
@@ -162,15 +164,16 @@ for xaxis in range(len(stats)-1):
           points.GetXaxis().SetTitle(stats[xaxis].__name__)
           points.GetYaxis().SetTitle(stats[yaxis].__name__)
           points.SetTitle(alglookup[alg])
+          points.SetName(str(alglookup[alg])+str(xaxis)+str(yaxis))
           points.SetFillColor(kWhite)
-          points.SetLineColor(getColour())
+          points.SetLineColor(getColour(first))
           points.SetMarkerColor(points.GetLineColor())
           if first :
               points.SetLineColor(kWhite)
               points.Draw("Psame")
           else :
-              points.Draw("PL")
               points.SetMarkerStyle(ROOT.kPlus)##kDot)
+              points.Draw("PLsame")
           first = False
       canvas.BuildLegend().SetFillColor(ROOT.kWhite)
       canvas.BuildLegend().SetFillStyle(0)
