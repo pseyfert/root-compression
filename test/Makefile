@@ -1,4 +1,8 @@
-#ROOT_ENV: aliased to export CPPFLAGS="`root-config --cflags` -march=native -g -Wextra -Wall -Wshadow" ; export LDFLAGS="`root-config --libs` -lRooStats -lRooFitCore -lRooFit -lMinuit -lFoam -lMathMore -lTMVA -lstdc++ -m64 -g -march=native"; export CPP=c++; export CXX=c++; export CC=c++
+CPPFLAGS=$(shell root-config --cflags) -march=native -g -Wextra -Wall -Wshadow
+LDFLAGS=$(shell root-config --libs) -lstdc++ -m64 -g -march=native
+CPP=c++
+CXX=c++
+CC=c++
 
 parent.h: org.root
 	root -l -b -q generate.C
@@ -61,6 +65,7 @@ $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call RRJOBTEMPLATE,$(ALG)
 $(foreach ALG,$(ALGS),$(foreach LVL,${LEVELS},$(eval $(call SIZETEMPLATE,$(ALG),$(LVL)))))
 
 
+.PHONY: callgrind-write massif-write realtime-write size callgrind-read realtime-read
 
-.PHONY:
-
+clean:
+	rm -f convert todevnull readtime writetime read
