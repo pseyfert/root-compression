@@ -38,11 +38,11 @@ realtime-write.$(1).$(2).log: writetime
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec ./writetime $(1) $(2) > $$@
 endef
 define CRJOBTEMPLATE
-callgrind-read.$(1).$(2).out: read
+callgrind-read.$(1).$(2).out: read size.$(1).$(2).root
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec valgrind --callgrind-out-file=$$@ --tool=callgrind -v --dump-instr=yes --trace-jump=yes --smc-check=all-non-file ./read $(1) $(2)
 endef
 define RRJOBTEMPLATE
-realtime-read.$(1).$(2).log: readtime
+realtime-read.$(1).$(2).log: readtime size.$(1).$(2).root
 	LD_PRELOAD=$(LD_PRELOAD):../brotli/enc/libenc.so:../brotli/dec/libdec.so:../zopfli/libzopfli.so:../libLzoRoot.so LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):../brotli/enc:../brotli/dec ./readtime $(1) $(2) > $$@
 endef
 define CWJOBTEMPLATE
