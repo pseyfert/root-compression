@@ -1,34 +1,26 @@
 from ROOT import *
 
-maxlevel = 10
-
-alglookup = { 1: "ZLIB",
-              2: "LZMA",
-              4: "LZO",
-              5: "LZ4",
-              6: "Zopfli",
-              7: "Brotli" 
-            }
+from ROOT import kBlack, kRed, kGreen, kBlue, kMagenta, kCyan, kOrange, kAzure, kViolet, kPink, kYellow, kSpring, kGray, kTeal, kWhite, kPlus, kDot
 
 import os, re
 
 colour_counter = 0
-colours = [ROOT.kBlack,
-           ROOT.kRed,
-           ROOT.kGreen,
-           ROOT.kBlue,
-           ROOT.kMagenta,
-           ROOT.kCyan,
-           ROOT.kOrange,
-           ROOT.kAzure,
-           ROOT.kViolet,
-           ROOT.kPink,
-           ROOT.kYellow,
-           ROOT.kSpring,
-           ROOT.kGray,
-           ROOT.kTeal]
 
 def getColour( reset = False ):
+  colours = [kBlack,
+           kRed,
+           kGreen,
+           kBlue,
+           kMagenta,
+           kCyan,
+           kOrange,
+           kAzure,
+           kViolet,
+           kPink,
+           kYellow,
+           kSpring,
+           kGray,
+           kTeal]
   global colour_counter
   if reset:
     colour_counter = 0
@@ -136,11 +128,50 @@ def find_callwrite(alg,level):
    raise ValueError('file not found: ' + filename)
 find_callwrite.__name__ = "cycles writing (function)"
 
-#TODO find_callread
+def find_callread(alg,level):
+   filename = 'callgrind-read.'+str(alg)+'.'+str(level)+'.out'
+   if os.path.isfile(filename):
+      f = open(filename)
+      lines = f.readlines()
+      try:
+         ind = -1
+         for l in lines:
+             if re.match('.*R__unzip.*',l):
+              if not re.match('.*R__unzip_header.*',l):
+               if not re.match('.*R__unzipLZMA.*',l):
+                ind = lines.index(l)
+         if ind < 0:
+             raise ValueError("didn't find R__unzip in "+filename)
+         toread = ind+1
+         pointer = None
+         for word in lines[toread].split(' '):
+            if re.match("0x..*",word):
+               pointer = word
+         if pointer:
+           for l in lines:
+             if re.match('calls.* '+pointer+'.*',l):
+                return int(lines[lines.index(l)+1].split(' ')[-1])
+         raise ValueError('callcount not found')
+      except ValueError:
+         print "failure in find_callread, searching ",filename
+         raise
+   raise ValueError('file not found: ' + filename)
+find_callread.__name__ = "cycles reading (function)"
 
 import numpy
 
-stats = [find_memwrite,find_size,find_callwrite,find_realread,find_realwrite]
+#stats = [find_size, find_memread, find_realwrite, find_realread, find_memwrite, find_callwrite, find_callread]
+
+
+def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, find_callread, find_realwrite]):
+   maxlevel = 10
+   alglookup = { 1: "ZLIB",
+              2: "LZMA",
+              4: "LZO",
+              5: "LZ4",
+              6: "Zopfli",
+              7: "Brotli" 
+            }
 
 graphmap = {}
 for alg in alglookup:
@@ -152,8 +183,8 @@ for alg in alglookup:
 	  for func in stats:
              vals.append(func(alg,level))
              #print 'executed ', func.__name__, ' for alg ', alg, ' at level ', level, '\tobtained ', vals[-1]
-       except ValueError:
-          print "couldn't determine all inputs for alg " + str(alg) + " at level " + str(level)
+          except ValueError as detail:
+             print "couldn't determine all inputs for alg " + str(alg) + " at level " + str(level) + "due to ",detail
           #raise
        else:
           algresult.append(vals)
@@ -177,16 +208,24 @@ for xaxis in range(len(stats)-1):
       first = True
       xmax = array([ graphmap[alg][xaxis].max() for alg in alglookup ]).max()
       ymax = array([ graphmap[alg][yaxis].max() for alg in alglookup ]).max()
-      h = TH1F("h","h",1,0,xmax)
-      h.GetYaxis().SetRangeUser(0,ymax*1.05)
+         h = TH1F("h","h",100,0,1.05*xmax)
+         #h.GetYaxis().SetRangeUser(0,ymax*1.05)
+         for b in range(1,100):
+            h.SetBinContent(b,ymax)
+         h.SetLineColor(kWhite)
+         h.SetMarkerColor(kWhite)
+         h.SetMarkerStyle(kDot)
       h.GetXaxis().SetTitle(stats[xaxis].__name__)
       h.GetYaxis().SetTitle(stats[yaxis].__name__)
       h.Draw()
+         graphs = []
+         print "drawing frame"
       for alg in alglookup:
           x = graphmap[alg][xaxis]
           y = graphmap[alg][yaxis]
           #points = TGraph(len(x),x,y)
           points = TGraph(len(x))
+             graphs.append(points)
           for i in range(len(x)):
              points.SetPoint(i,x[i],y[i])
           points.GetXaxis().SetTitle(stats[xaxis].__name__)
@@ -196,14 +235,13 @@ for xaxis in range(len(stats)-1):
           points.SetFillColor(kWhite)
           points.SetLineColor(getColour(first))
           points.SetMarkerColor(points.GetLineColor())
-          if first :
-              points.SetLineColor(kWhite)
-              points.Draw("Psame")
-          else :
-              points.SetMarkerStyle(ROOT.kPlus)##kDot)
+                 # for uncompressed
+                 #points.SetLineColor(kWhite)
+                 #points.Draw("Psame")
+             points.SetMarkerStyle(kPlus)##kDot)
               points.Draw("PLsame")
           first = False
-      canvas.BuildLegend().SetFillColor(ROOT.kWhite)
+         canvas.BuildLegend().SetFillColor(kWhite)
       canvas.BuildLegend().SetFillStyle(0)
       canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".png")
       canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".eps")
@@ -211,3 +249,9 @@ for xaxis in range(len(stats)-1):
       canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".root")
       canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".C")
       del h
+if __name__ == "__main__":
+    stylefile = "/home/pseyfert/coding/root/official.C"
+    if os.path.isfile(stylefile):
+       from ROOT import gROOT
+       gROOT.ProcessLine(".x "+stylefile)
+    runstats()
