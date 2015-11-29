@@ -7,20 +7,26 @@ import os, re
 colour_counter = 0
 
 def getColour( reset = False ):
+    '''
+    cycle through colours
+
+    Keyword arguments:
+    reset  -- start over again
+    '''
   colours = [kBlack,
-           kRed,
-           kGreen,
-           kBlue,
-           kMagenta,
-           kCyan,
-           kOrange,
-           kAzure,
-           kViolet,
-           kPink,
-           kYellow,
-           kSpring,
-           kGray,
-           kTeal]
+             kRed,
+             kGreen,
+             kBlue,
+             kMagenta,
+             kCyan,
+             kOrange,
+             kAzure,
+             kViolet,
+             kPink,
+             kYellow,
+             kSpring,
+             kGray,
+             kTeal]
   global colour_counter
   if reset:
     colour_counter = 0
@@ -34,6 +40,13 @@ def getColour( reset = False ):
     return retval
 
 def find_size(alg,level):
+   '''
+   determine the size of the compressed file for an algorithm and compression level setting
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = 'size.'+str(alg)+'.'+str(level)+'.root'
    if os.path.isfile(filename):
       return os.stat(filename).st_size
@@ -41,6 +54,13 @@ def find_size(alg,level):
 find_size.__name__ = "compressed size"
 
 def find_memread(alg,level):
+   '''
+   parse massif profile for reading a compressed file. peak memory usage w/o overhead is sought.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = 'massif-read.'+str(alg)+'.'+str(level)+'.out'
    if os.path.isfile(filename):
       f = open(filename)
@@ -56,6 +76,13 @@ def find_memread(alg,level):
 find_memread.__name__ = "memory reading (peak)"
 
 def find_realwrite(alg,level):
+   '''
+   read wall clock time from log file of writing a compressed file.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = "realtime-write."+str(alg)+'.'+str(level)+".log"
    if os.path.isfile(filename):
       f = open(filename)
@@ -70,6 +97,13 @@ find_realwrite.__name__ = "realtime writing"
 
 
 def find_realread(alg,level):
+   '''
+   read wall clock time from log file of reading a compressed file.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = "realtime-read."+str(alg)+'.'+str(level)+".log"
    if os.path.isfile(filename):
       f = open(filename)
@@ -84,6 +118,13 @@ find_realread.__name__ = "realtime reading"
 
 
 def find_memwrite(alg,level):
+   '''
+   parse massif profile for writing a compressed file. peak memory usage w/o overhead is sought.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = 'massif-write.'+str(alg)+'.'+str(level)+'.out'
    if os.path.isfile(filename):
       f = open(filename)
@@ -101,6 +142,13 @@ find_memwrite.__name__ = "memory writing (peak)"
 
 
 def find_callwrite(alg,level):
+   '''
+   parse callgrind profile for writing a compressed file. cycles of R__zipMultipleAlgorithm and the functions called by it are sought.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = 'callgrind-write.'+str(alg)+'.'+str(level)+'.out'
    if os.path.isfile(filename):
       f = open(filename)
@@ -129,6 +177,13 @@ def find_callwrite(alg,level):
 find_callwrite.__name__ = "cycles writing (function)"
 
 def find_callread(alg,level):
+   '''
+   parse callgrind profile for reading a compressed file. cycles of R__unzip and the functions called by it are sought. The unzipping of the header is not accounted.
+
+   Keyword arguments:
+   alg   -- algorithm number
+   level -- compression level
+   '''
    filename = 'callgrind-read.'+str(alg)+'.'+str(level)+'.out'
    if os.path.isfile(filename):
       f = open(filename)
@@ -180,10 +235,10 @@ for alg in alglookup:
    for level in range(1,maxlevel):
        try:
           vals = []
-	  for func in stats:
+          for func in stats:
              vals.append(func(alg,level))
              #print 'executed ', func.__name__, ' for alg ', alg, ' at level ', level, '\tobtained ', vals[-1]
-          except ValueError as detail:
+       except ValueError as detail:
              print "couldn't determine all inputs for alg " + str(alg) + " at level " + str(level) + "due to ",detail
           #raise
        else:
