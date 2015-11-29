@@ -12,6 +12,8 @@ parent.C: org.root
 
 read: read.o parent.o
 
+readtime: readtime.o parent.o
+
 read.o: parent.h
  
 # http://stackoverflow.com/questions/1490949/how-to-write-loop-in-makefile
@@ -29,6 +31,8 @@ RRJOBS   := $(foreach ALG,$(ALGS),$(addsuffix .log, $(addprefix realtime-read.${
 SIZEJOBS := $(foreach ALG,$(ALGS),$(addsuffix .root,$(addprefix size.${ALG}.,${LEVELS})))
 
 all: callgrind-write massif-write realtime-write size callgrind-read realtime-read massif-read
+parallel-tests: callgrind-write massif-write size callgrind-read massif-read
+sequential-tests: realtime-read realtime-write
 callgrind-write: ${CWJOBS}
 callgrind-read: ${CRJOBS}
 massif-write: ${MWJOBS}
