@@ -228,82 +228,82 @@ def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, fi
               7: "Brotli" 
             }
 
-graphmap = {}
-for alg in alglookup:
-   columns = []
-   algresult = []
-   for level in range(1,maxlevel):
-       try:
-          vals = []
-          for func in stats:
-             vals.append(func(alg,level))
-             #print 'executed ', func.__name__, ' for alg ', alg, ' at level ', level, '\tobtained ', vals[-1]
-       except ValueError as detail:
-             print "couldn't determine all inputs for alg " + str(alg) + " at level " + str(level) + "due to ",detail
-          #raise
-       else:
-          algresult.append(vals)
-       #print 'vals ', vals
-       #print 'algresult ', algresult
-   from numpy import array
-   #print 'algresult ', algresult
-   algresults = array(algresult)
-   #print 'algresults ', algresults
-   for column in range(len(stats)):
-      the_column = algresults[:,column]
-      #print 'the_column ', the_column
-      columns.append(the_column)
-   graphmap[alg] = columns
+   graphmap = {}
+   for alg in alglookup:
+      columns = []
+      algresult = []
+      for level in range(1,maxlevel):
+          try:
+             vals = []
+             for func in stats:
+                vals.append(func(alg,level))
+                #print 'executed ', func.__name__, ' for alg ', alg, ' at level ', level, '\tobtained ', vals[-1]
+          except ValueError as detail:
+                print "couldn't determine all inputs for alg " + str(alg) + " at level " + str(level) + "due to ",detail
+             #raise
+          else:
+             algresult.append(vals)
+          #print 'vals ', vals
+          #print 'algresult ', algresult
+      from numpy import array
+      #print 'algresult ', algresult
+      algresults = array(algresult)
+      #print 'algresults ', algresults
+      for column in range(len(stats)):
+         the_column = algresults[:,column]
+         #print 'the_column ', the_column
+         columns.append(the_column)
+      graphmap[alg] = columns
+      
    
-
-#print graphmap
-for xaxis in range(len(stats)-1):
-   for yaxis in range(xaxis+1,len(stats)):
-      canvas = TCanvas()
-      first = True
-      xmax = array([ graphmap[alg][xaxis].max() for alg in alglookup ]).max()
-      ymax = array([ graphmap[alg][yaxis].max() for alg in alglookup ]).max()
-         h = TH1F("h","h",100,0,1.05*xmax)
-         #h.GetYaxis().SetRangeUser(0,ymax*1.05)
-         for b in range(1,100):
-            h.SetBinContent(b,ymax)
-         h.SetLineColor(kWhite)
-         h.SetMarkerColor(kWhite)
-         h.SetMarkerStyle(kDot)
-      h.GetXaxis().SetTitle(stats[xaxis].__name__)
-      h.GetYaxis().SetTitle(stats[yaxis].__name__)
-      h.Draw()
-         graphs = []
-         print "drawing frame"
-      for alg in alglookup:
-          x = graphmap[alg][xaxis]
-          y = graphmap[alg][yaxis]
-          #points = TGraph(len(x),x,y)
-          points = TGraph(len(x))
-             graphs.append(points)
-          for i in range(len(x)):
-             points.SetPoint(i,x[i],y[i])
-          points.GetXaxis().SetTitle(stats[xaxis].__name__)
-          points.GetYaxis().SetTitle(stats[yaxis].__name__)
-          points.SetTitle(alglookup[alg])
-          points.SetName(str(alglookup[alg])+str(xaxis)+str(yaxis))
-          points.SetFillColor(kWhite)
-          points.SetLineColor(getColour(first))
-          points.SetMarkerColor(points.GetLineColor())
-                 # for uncompressed
-                 #points.SetLineColor(kWhite)
-                 #points.Draw("Psame")
-             points.SetMarkerStyle(kPlus)##kDot)
-              points.Draw("PLsame")
-          first = False
-         canvas.BuildLegend().SetFillColor(kWhite)
-      canvas.BuildLegend().SetFillStyle(0)
-      canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".png")
-      canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".eps")
-      canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".pdf")
-      canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".root")
-      canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".C")
-      del h
+   #print graphmap
+   for xaxis in range(len(stats)-1):
+      for yaxis in range(xaxis+1,len(stats)):
+         canvas = TCanvas()
+         first = True
+         xmax = array([ graphmap[alg][xaxis].max() for alg in alglookup ]).max()
+         ymax = array([ graphmap[alg][yaxis].max() for alg in alglookup ]).max()
+            h = TH1F("h","h",100,0,1.05*xmax)
+            #h.GetYaxis().SetRangeUser(0,ymax*1.05)
+            for b in range(1,100):
+               h.SetBinContent(b,ymax)
+            h.SetLineColor(kWhite)
+            h.SetMarkerColor(kWhite)
+            h.SetMarkerStyle(kDot)
+         h.GetXaxis().SetTitle(stats[xaxis].__name__)
+         h.GetYaxis().SetTitle(stats[yaxis].__name__)
+         h.Draw()
+            graphs = []
+            print "drawing frame"
+         for alg in alglookup:
+             x = graphmap[alg][xaxis]
+             y = graphmap[alg][yaxis]
+             #points = TGraph(len(x),x,y)
+             points = TGraph(len(x))
+                graphs.append(points)
+             for i in range(len(x)):
+                points.SetPoint(i,x[i],y[i])
+             points.GetXaxis().SetTitle(stats[xaxis].__name__)
+             points.GetYaxis().SetTitle(stats[yaxis].__name__)
+             points.SetTitle(alglookup[alg])
+             points.SetName(str(alglookup[alg])+str(xaxis)+str(yaxis))
+             points.SetFillColor(kWhite)
+             points.SetLineColor(getColour(first))
+             points.SetMarkerColor(points.GetLineColor())
+                    # for uncompressed
+                    #points.SetLineColor(kWhite)
+                    #points.Draw("Psame")
+                points.SetMarkerStyle(kPlus)##kDot)
+                 points.Draw("PLsame")
+             first = False
+            canvas.BuildLegend().SetFillColor(kWhite)
+         canvas.BuildLegend().SetFillStyle(0)
+         canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".png")
+         canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".eps")
+         canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".pdf")
+         canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".root")
+         canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".C")
+         del h
 if __name__ == "__main__":
     stylefile = "/home/pseyfert/coding/root/official.C"
     if os.path.isfile(stylefile):
