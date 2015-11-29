@@ -7,12 +7,12 @@ import os, re
 colour_counter = 0
 
 def getColour( reset = False ):
-    '''
-    cycle through colours
+  '''
+  cycle through colours
 
-    Keyword arguments:
-    reset  -- start over again
-    '''
+  Keyword arguments:
+  reset  -- start over again
+  '''
   colours = [kBlack,
              kRed,
              kGreen,
@@ -263,24 +263,24 @@ def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, fi
          first = True
          xmax = array([ graphmap[alg][xaxis].max() for alg in alglookup ]).max()
          ymax = array([ graphmap[alg][yaxis].max() for alg in alglookup ]).max()
-            h = TH1F("h","h",100,0,1.05*xmax)
-            #h.GetYaxis().SetRangeUser(0,ymax*1.05)
-            for b in range(1,100):
-               h.SetBinContent(b,ymax)
-            h.SetLineColor(kWhite)
-            h.SetMarkerColor(kWhite)
-            h.SetMarkerStyle(kDot)
+         h = TH1F("h","h",100,0,1.05*xmax)
+         #h.GetYaxis().SetRangeUser(0,ymax*1.05)
+         for b in range(1,100):
+            h.SetBinContent(b,ymax)
+         h.SetLineColor(kWhite)
+         h.SetMarkerColor(kWhite)
+         h.SetMarkerStyle(kDot)
          h.GetXaxis().SetTitle(stats[xaxis].__name__)
          h.GetYaxis().SetTitle(stats[yaxis].__name__)
          h.Draw()
-            graphs = []
-            print "drawing frame"
+         graphs = []
+         print "drawing frame"
          for alg in alglookup:
              x = graphmap[alg][xaxis]
              y = graphmap[alg][yaxis]
              #points = TGraph(len(x),x,y)
              points = TGraph(len(x))
-                graphs.append(points)
+             graphs.append(points)
              for i in range(len(x)):
                 points.SetPoint(i,x[i],y[i])
              points.GetXaxis().SetTitle(stats[xaxis].__name__)
@@ -293,10 +293,10 @@ def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, fi
                     # for uncompressed
                     #points.SetLineColor(kWhite)
                     #points.Draw("Psame")
-                points.SetMarkerStyle(kPlus)##kDot)
-                 points.Draw("PLsame")
+             points.SetMarkerStyle(kPlus)##kDot)
+             points.Draw("PLsame")
              first = False
-            canvas.BuildLegend().SetFillColor(kWhite)
+         canvas.BuildLegend().SetFillColor(kWhite)
          canvas.BuildLegend().SetFillStyle(0)
          canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".png")
          canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".eps")
