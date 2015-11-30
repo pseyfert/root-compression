@@ -296,8 +296,8 @@ def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, fi
              points.SetMarkerStyle(kPlus)##kDot)
              points.Draw("PLsame")
              first = False
-         canvas.BuildLegend().SetFillColor(kWhite)
-         canvas.BuildLegend().SetFillStyle(0)
+         legend = canvas.BuildLegend().SetFillColor(kWhite)
+         legend.SetFillStyle(0)
          canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".png")
          canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".eps")
          canvas.SaveAs("plot_"+str(xaxis)+"_"+str(yaxis)+".pdf")
