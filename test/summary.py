@@ -215,10 +215,8 @@ find_callread.__name__ = "cycles reading (function)"
 
 import numpy
 
-#stats = [find_size, find_memread, find_realwrite, find_realread, find_memwrite, find_callwrite, find_callread]
 
-
-def runstats(stats = [find_size, find_memread, find_memwrite, find_callwrite, find_callread, find_realwrite]):
+def runstats(stats = [find_size, find_memread, find_realwrite, find_realread, find_memwrite, find_callwrite, find_callread]):
    maxlevel = 10
    alglookup = { 1: "ZLIB",
               2: "LZMA",
