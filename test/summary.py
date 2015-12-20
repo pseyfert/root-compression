@@ -227,6 +227,10 @@ def runstats(stats = [find_size, find_memread, find_realwrite, find_realread, fi
             }
 
    graphmap = {}
+   print "          | ",
+   for func in stats:
+       print "{:35s}".format(func.__name__),
+   print
    for alg in alglookup:
       columns = []
       algresult = []
@@ -241,6 +245,10 @@ def runstats(stats = [find_size, find_memread, find_realwrite, find_realread, fi
              #raise
           else:
              algresult.append(vals)
+          print "{:7s}-{:2d}| ".format(alglookup[alg],level),
+          for n in algresult[-1]:
+              print "{:32f} | ".format(float(n)),
+          print
           #print 'vals ', vals
           #print 'algresult ', algresult
       from numpy import array
