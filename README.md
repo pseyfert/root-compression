@@ -1,3 +1,5 @@
+![logo](the_icon.png)
+
 # root-compression
 
 This is partially a project to educate myself how things work.
