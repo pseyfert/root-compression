@@ -73,9 +73,4 @@ anymore to run tests.
 
 ## results
 
-at the moment at https://twiki.cern.ch/twiki/bin/view/Main/PaulSeyfert#root_compression
-
-or in plot.C
-
-cf
-![plot](http://mathphys.fsk.uni-heidelberg.de/~pseyfert/compressionalgs_in_root.png)
+see test/summary.txt
