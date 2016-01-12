@@ -40,6 +40,7 @@ massif-read: ${MRJOBS}
 realtime-write: ${RWJOBS}
 realtime-read: ${RRJOBS}
 size: ${SIZEJOBS}
+exe: writetime read readtime todevnull convert
 
 define RWJOBTEMPLATE
 realtime-write.$(1).$(2).log: writetime
